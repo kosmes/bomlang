@@ -1,0 +1,6 @@
+[Bb]uild
+
+# vim
+*.swp
+.ycm_*
+compile_commands.json
