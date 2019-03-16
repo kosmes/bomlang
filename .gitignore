@@ -1,6 +1,13 @@
 [Bb]uild
 
-# vim
+### vim ###
 *.swp
 .ycm_*
 compile_commands.json
+
+### IDE ###
+.idea
+.vs
+.vscode
+
+cmake-build-*
