@@ -25,8 +25,21 @@
 #endif
 
 #if PLATFORM == PLATFORM_WIN32
+#   if COMPILER == COMPILER_MSVC
+#		if defined(STATIC_LIB)
+#			define UTILITY_EXPORT
+#		else
+#			if defined(UTILITY_EXPORTS)
+#				define UTILITY_EXPORT __declspec(dllexport)
+#			else
+#				define UTILITY_EXPORT __declspec(dllimport)
+#			endif
+#		endif
+#   else
+#       define DLL_EXPORT __attribute__ ((visibility("default")))
+#   endif
 #else
-#   define EXPORT __attribute__ ((visibility("default")))
+#   define DLL_EXPORT __attribute__ ((visibility("default")))
 #endif
 
 #endif /* PLATFORM_H */
