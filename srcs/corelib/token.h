@@ -2,8 +2,8 @@
 // Created by jiney on 2019-03-17.
 //
 
-#ifndef BINARY_TOKEN_H
-#define BINARY_TOKEN_H
+#ifndef BOM_TOKEN_H
+#define BOM_TOKEN_H
 
 #include "common.h"
 
@@ -61,4 +61,4 @@ DLL_EXPORT token_t create_token(token_type_t type, unsigned int line);
  */
 DLL_EXPORT void destroy_token(token_t *token);
 
-#endif //BINARY_TOKEN_H
+#endif //BOM_TOKEN_H

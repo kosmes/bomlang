@@ -1,2 +1,2 @@
 add_subdirectory(corelib)
-add_subdirectory(binary)
+add_subdirectory(bomi)
