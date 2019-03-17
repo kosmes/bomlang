@@ -40,7 +40,7 @@ static void eat(token_type_t type) {
         this.token.type = TokenNone;
     } else {
         this.pos += 1;
-        if (this.pos >= buf_len(this.tokens)) {
+        if (this.pos > buf_len(this.tokens)) {
             error(SYNTAX_ERR, this.token.line);
         } else {
             this.token = this.tokens[this.pos];
