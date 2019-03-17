@@ -26,7 +26,7 @@ DLL_EXPORT void final_script(script_t *script) {
     buf_free(script->text);
 }
 
-void add_int_and_put_addr(script_t *script, int data) {
+size_t add_int_and_return_addr(script_t *script, int data) {
     converter_t cvt;
     cvt.asInteger = data;
 
@@ -36,14 +36,10 @@ void add_int_and_put_addr(script_t *script, int data) {
         buf_push(script->data, cvt.asBytes[0]);
     }
 
-    cvt.asSize = addr;
-
-    for (int i = 0; i < 8; i++) {
-        buf_push(script->text, cvt.asBytes[i]);
-    }
+    return addr;
 }
 
-void add_double_and_put_addr(script_t *script, double data) {
+size_t add_double_and_return_addr(script_t *script, double data) {
     converter_t cvt;
     cvt.asDouble = data;
 
@@ -53,14 +49,10 @@ void add_double_and_put_addr(script_t *script, double data) {
         buf_push(script->data, cvt.asBytes[0]);
     }
 
-    cvt.asSize = addr;
-
-    for (int i = 0; i < 8; i++) {
-        buf_push(script->text, cvt.asBytes[i]);
-    }
+    return addr;
 }
 
-void add_string_and_put_addr(script_t *script, const wchar_t *data) {
+size_t add_string_and_return_addr(script_t *script, const wchar_t *data) {
     short len = (short) wcslen(data);
     size_t addr = (size_t) buf_len(script->data);
 
@@ -77,11 +69,7 @@ void add_string_and_put_addr(script_t *script, const wchar_t *data) {
         buf_push(script->data, cvt.asBytes[1]);
     }
 
-    cvt.asSize = addr;
-
-    for (int i = 0; i < 8; i++) {
-        buf_push(script->text, cvt.asBytes[i]);
-    }
+    return addr;
 }
 
 int get_int_from_addr(script_t *script, size_t addr) {
