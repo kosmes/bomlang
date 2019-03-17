@@ -38,7 +38,7 @@ int main(void) {
                     break;
 
                 case TokenFPConstant:
-                    wprintf(L" 실수 값: %f\n", tokens[i].f64);
+                    wprintf(L" 실수 값: %lf\n", tokens[i].f64);
                     break;
 
                 default:

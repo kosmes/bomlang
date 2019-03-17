@@ -6,9 +6,10 @@
 #include "buf.h"
 
 #define WNULL L'\0'
-#define CHECK1(c, t) if (this.ch == L##c) { buf_push(tokens, create_token(t, this.line)); advance(); }
-#define CHECK2(c1, t1, c2, t2) if (this.ch == L##c1) { buf_push(tokens, create_token(t1, this.line)); advance(); } \
-    else if (this.ch == L##c2) { buf_push(tokens, create_token(t2, this.line)); advance(); }
+#define CHECK1(c, t) if (this.ch == L##c) { buf_push(tokens, create_token(t, this.line)); advance(); continue; }
+#define CHECK2(c1, t1, c2, t2) if (this.ch == L##c1) \
+    { buf_push(tokens, create_token(t1, this.line)); advance(); continue; } \
+    else if (this.ch == L##c2) { buf_push(tokens, create_token(t2, this.line)); advance(); continue; }
 
 typedef struct syntax_ syntax_t;
 
@@ -86,11 +87,12 @@ token_t* get_tokens(wchar_t *text) {
     while (this.ch != WNULL) {
         if (iswspace(this.ch)) {
             skip_whitespace();
-            advance();
+            continue;
         }
 
         if (iswdigit(this.ch)) {
             buf_push(tokens, get_number());
+            continue;
         }
 
         CHECK1(';', TokenSemicolon);
