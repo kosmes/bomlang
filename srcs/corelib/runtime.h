@@ -5,12 +5,16 @@
 #ifndef BOM_OPCODE_H
 #define BOM_OPCODE_H
 
-enum TypeCode {
+typedef enum type_code type_code_t;
+typedef enum op_code op_code_t;
+
+enum type_code {
+    TYPE_NONE,
     TYPE_INT,
     TYPE_DOUBLE,
 };
 
-enum OpCode {
+enum op_code {
     OP_HALT,
 
     OP_CONST = 0x10 ,
