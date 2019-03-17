@@ -102,7 +102,7 @@ static node_t *level4() {
 
         node_t **child = NULL;
         buf_push(child, node);
-        buf_push(child, level1());
+        buf_push(child, level3());
 
         node = create_node(NodeBinOp, tkn, child);
     }
