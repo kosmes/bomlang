@@ -3,6 +3,8 @@
 #include "parser.h"
 #include "syntax.h"
 #include "buf.h"
+#include "compiler.h"
+#include "runtime.h"
 
 static wchar_t buffer[2048];
 
@@ -39,6 +41,75 @@ void print_node(node_t *node) {
     }
 }
 
+#define fetch() script->text[offset++]
+
+void print_type(type_code_t code) {
+    const wchar_t *str[] = {
+            L"none",
+            L"integer",
+            L"double"
+    };
+
+    wprintf(L"\ttype: %ls ", str[(char) code]);
+}
+
+void print_const(script_t *script, type_code_t code, size_t *offset) {
+    converter_t cvt;
+    cvt.asDouble = 0;
+
+    for (int i = 0; i < 8; i++) {
+        cvt.asBytes[i] = script->text[(*(offset))++];
+    }
+
+    size_t addr = cvt.asSize;
+    switch(code) {
+        case TYPE_INT: {
+            int data = get_int_from_addr(script, addr);
+            wprintf(L"\tvalue: %d ", data);
+        } break;
+        case TYPE_DOUBLE: {
+            double data = get_double_from_addr(script, addr);
+            wprintf(L"\tvalue: %f ", data);
+        } break;
+        default:
+            break;
+    }
+}
+
+void print_script(script_t *script) {
+    size_t len = buf_len(script->text);
+    size_t offset = 0;
+    while(offset < len) {
+        switch (fetch()) {
+            case OP_CONST: {
+                type_code_t type = fetch();
+                wprintf(L"const ");
+                print_type(type);
+                print_const(script, type, &offset);
+                wprintf(L"\n");
+            } break;
+            case OP_ADD: {
+                wprintf(L"add ");
+                print_type(fetch());
+                wprintf(L"\n");
+            } break;
+            case OP_SUB: {
+                wprintf(L"sub ");
+                print_type(fetch());
+                wprintf(L"\n");
+            } break;
+            case OP_MUL: {
+                wprintf(L"mul ");
+                print_type(fetch());
+            } break;
+            case OP_DIV: {
+                wprintf(L"div ");
+                print_type(fetch());
+            } break;
+        }
+    }
+}
+
 int main(void) {
     setlocale(LC_ALL, "");
 
@@ -57,7 +128,9 @@ int main(void) {
         }
 
         node_t *root_node = do_parse(tokens);
-        print_node(root_node);
+
+        script_t *script = compile(root_node);
+        print_script(script);
     }
     return 0;
 }
