@@ -12,5 +12,5 @@ const wchar_t *errstr[] = {
 };
 
 void error(enum errco err, unsigned int line) {
-    wprintf(L"오류 [ %d 줄 ] %ls", line, errstr[err]);
+    wprintf(L"오류 [ %d 줄 ] %ls\n", line, errstr[err]);
 }
