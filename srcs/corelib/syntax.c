@@ -81,7 +81,7 @@ token_t* get_tokens(wchar_t *text) {
 
     this.line = 0;
 
-    token_t *tokens = (token_t *)malloc(sizeof(token_t) * 128);
+    token_t *tokens = NULL;
 
     while (this.ch != WNULL) {
         if (iswspace(this.ch)) {
