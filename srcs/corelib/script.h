@@ -24,4 +24,10 @@ DLL_EXPORT void add_double_and_put_addr(script_t *script, double data);
 
 DLL_EXPORT void add_string_and_put_addr(script_t *script, const wchar_t *data);
 
+DLL_EXPORT int get_int_from_addr(script_t *script, size_t addr);
+
+DLL_EXPORT double get_double_from_addr(script_t *script, size_t addr);
+
+DLL_EXPORT const wchar_t *get_string_from_addr(script_t *script, size_t addr);
+
 #endif //BOM_SCRIPT_H

@@ -68,7 +68,7 @@ void add_string_and_put_addr(script_t *script, const wchar_t *data) {
     cvt.asInteger = len;
 
     for (int i = 0; i < 2; i++) {
-        buf_push(script->data, cvt.asBytes[0]);
+        buf_push(script->data, cvt.asBytes[i]);
     }
 
     for (int i = 0; i < len; i++) {
@@ -82,4 +82,56 @@ void add_string_and_put_addr(script_t *script, const wchar_t *data) {
     for (int i = 0; i < 8; i++) {
         buf_push(script->text, cvt.asBytes[i]);
     }
+}
+
+int get_int_from_addr(script_t *script, size_t addr) {
+    size_t offset = addr;
+    converter_t cvt;
+    cvt.asDouble = 0;
+
+    for (int i = 0; i < 4; i++) {
+        cvt.asBytes[i] = script->data[offset + i];
+    }
+
+    return cvt.asInteger;
+}
+
+double get_double_from_addr(script_t *script, size_t addr) {
+    size_t offset = addr;
+    converter_t cvt;
+    cvt.asDouble = 0;
+
+    for (int i = 0; i < 8; i++) {
+        cvt.asBytes[i] = script->data[offset + i];
+    }
+
+    return cvt.asDouble;
+}
+
+const wchar_t *get_string_from_addr(script_t *script, size_t addr) {
+    size_t offset = addr;
+    short len = 0;
+
+    converter_t cvt;
+    cvt.asDouble = 0;
+
+    for (int i = 0; i < 2; i++) {
+        cvt.asBytes [i] = script->data[offset++];
+    }
+
+    len = cvt.asShort;
+    wchar_t *str = malloc(sizeof(wchar_t) * (len + 1));
+
+    for (int i = 0; i < len; i++) {
+        cvt.asDouble = 0;
+
+        cvt.asBytes[0] = script->data[offset++];
+        cvt.asBytes[1] = script->data[offset++];
+
+        str[i] = cvt.asChar;
+    }
+
+    str[len] = L'\0';
+
+    return str;
 }
