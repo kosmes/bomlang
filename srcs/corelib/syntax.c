@@ -11,9 +11,7 @@
     { buf_push(tokens, create_token(t1, this.line)); advance(); continue; } \
     else if (this.ch == L##c2) { buf_push(tokens, create_token(t2, this.line)); advance(); continue; }
 
-typedef struct syntax_ syntax_t;
-
-struct syntax_ {
+struct syntax {
     wchar_t *text;
     size_t text_len;
 
@@ -21,9 +19,7 @@ struct syntax_ {
     size_t pos;
 
     unsigned int line;
-};
-
-syntax_t this;
+} this;
 
 void advance() {
     this.pos += 1;
