@@ -56,6 +56,7 @@ visit_result_t visit_bin_op(node_t *node) {
     visit_result_t rhs_result = visit(rhs);
 
     result.type_id = check_casting(lhs_result.script, lhs_result.type_id, rhs_result.type_id, false);
+    result.type_id = check_casting(rhs_result.script, rhs_result.type_id, lhs_result.type_id, false);
 
     size_t len = buf_len(lhs_result.script->text);
     for (size_t i = 0; i < len; i++) {
