@@ -3,8 +3,12 @@
 //
 
 #include "syntax.h"
+#include "buf.h"
 
 #define WNULL L'\0'
+#define CHECK1(c, t) if (this.ch == L##c) { buf_push(tokens, create_token(t, this.line)); advance(); }
+#define CHECK2(c1, t1, c2, t2) if (this.ch == L##c1) { buf_push(tokens, create_token(t1, this.line)); advance(); } \
+    else if (this.ch == L##c2) { buf_push(tokens, create_token(t2, this.line)); advance(); }
 
 typedef struct syntax_ syntax_t;
 
@@ -32,6 +36,42 @@ void advance() {
     }
 }
 
+token_t get_number() {
+    wchar_t buf[16];
+    char offset = 0;
+    token_t token;
+
+    while (this.ch != WNULL && iswdigit(this.ch)) {
+        buf[offset++] = this.ch;
+        advance();
+    }
+
+    if (this.ch == L'.') {
+        buf[offset++] = this.ch;
+        advance();
+
+        while (this.ch != WNULL && iswdigit(this.ch)) {
+            buf[offset++] = this.ch;
+            advance();
+        }
+
+        token = create_token(TokenFPConstant, this.line);
+        token.f64 = (double) wcstod(buf, WNULL);
+
+    } else {
+        token = create_token(TokenIntegerConstant, this.line);
+        token.i32 = (int) wcstol(buf, WNULL, 10);
+    }
+
+    return token;
+}
+
+void skip_whitespace() {
+    while (this.ch != WNULL && iswspace(this.ch)) {
+        advance();
+    }
+}
+
 token_t* get_tokens(wchar_t *text) {
     this.text = text;
     this.text_len = wcslen(text);
@@ -45,12 +85,27 @@ token_t* get_tokens(wchar_t *text) {
 
     while (this.ch != WNULL) {
         if (iswspace(this.ch)) {
+            skip_whitespace();
             advance();
         }
 
-        if (this.ch == L';') {
-            create_token(TokenSemicolon, this.line);
+        if (iswdigit(this.ch)) {
+            buf_push(tokens, get_number());
         }
+
+        CHECK1(';', TokenSemicolon);
+        CHECK1('(', TokenLeftParen);
+        CHECK1(')', TokenRightParen);
+        CHECK1('{', TokenLeftBrace);
+        CHECK1('}', TokenRightBrace);
+        CHECK1('=', TokenAssign);
+        CHECK1(':', TokenColon);
+        CHECK1(',', TokenComma);
+        CHECK1('+', TokenPlus);
+        CHECK1('-', TokenMinus);
+        CHECK1('*', TokenAbsterisk);
+        CHECK1('/', TokenSlash);
+        CHECK1('%', TokenModulus);
     }
 
     return tokens;
