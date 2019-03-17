@@ -22,7 +22,7 @@ size_t add_int_and_return_addr(script_t *script, int data) {
     size_t addr = buf_len(script->data);
 
     for (int i = 0; i < 4; i++) {
-        buf_push(script->data, cvt.asBytes[0]);
+        buf_push(script->data, cvt.asBytes[i]);
     }
 
     return addr;
@@ -35,7 +35,7 @@ size_t add_double_and_return_addr(script_t *script, double data) {
     size_t addr = buf_len(script->data);
 
     for (int i = 0; i < 8; i++) {
-        buf_push(script->data, cvt.asBytes[0]);
+        buf_push(script->data, cvt.asBytes[i]);
     }
 
     return addr;
