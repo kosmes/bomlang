@@ -1,5 +1,6 @@
 #include <locale.h>
 
+#include "parser.h"
 #include "syntax.h"
 #include "buf.h"
 
@@ -17,6 +18,27 @@ wchar_t *readline(wchar_t *prompt) {
 
 void add_history(char* unused) {}
 
+void print_node(node_t *node) {
+    wprintf(L"노드: %d", node->type);
+    switch(node->type) {
+        case NodeIntegerConstant:
+            wprintf(L" 정수 값: %d\n", node->token.i32);
+            break;
+
+        case NodeFPConstant:
+            wprintf(L" 실수 값: %lf\n", node->token.f64);
+            break;
+
+        default:
+        wprintf(L"\n");
+        break;
+    }
+
+    for(int i = 0; i < buf_len(node->child); i++) {
+        print_node(node->child[i]);
+    }
+}
+
 int main(void) {
     setlocale(LC_ALL, "");
 
@@ -30,22 +52,12 @@ int main(void) {
         }
 
         token_t *tokens = get_tokens(input);
-        for(int i = 0; i < buf_len(tokens); i++) {
-            wprintf(L"토큰: %d", tokens[i].type);
-            switch(tokens[i].type) {
-                case TokenIntegerConstant:
-                    wprintf(L" 정수 값: %d\n", tokens[i].i32);
-                    break;
-
-                case TokenFPConstant:
-                    wprintf(L" 실수 값: %lf\n", tokens[i].f64);
-                    break;
-
-                default:
-                    wprintf(L"\n");
-                    break;
-            }
+        if (tokens == NULL) {
+            continue;
         }
+
+        node_t *root_node = do_parse(tokens);
+        print_node(root_node);
     }
     return 0;
 }
