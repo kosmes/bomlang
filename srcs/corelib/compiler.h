@@ -7,7 +7,7 @@
 
 #include "common.h"
 #include "script.h"
-#include "visiter.h"
+#include "visitor.h"
 
 DLL_EXPORT script_t *compile(node_t *root_node);
 
