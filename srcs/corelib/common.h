@@ -19,4 +19,15 @@
 #define MAX(a, b) (a >= b ? a : b)
 #define MIN(a, b) (a <= b ? a : b)
 
+typedef union converter converter_t;
+
+union converter {
+    short asShort;
+    int asInteger;
+    double asDouble;
+    wchar_t asChar;
+    size_t asSize;
+    char asBytes[8];
+};
+
 #endif /* ifndef COMMON_H */

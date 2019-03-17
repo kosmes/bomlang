@@ -5,17 +5,6 @@
 #include "script.h"
 #include "buf.h"
 
-typedef union converter converter_t;
-
-union converter {
-    short asShort;
-    int asInteger;
-    double asDouble;
-    wchar_t asChar;
-    size_t asSize;
-    char asBytes[8];
-};
-
 void init_script(script_t *script) {
     script->text = NULL;
     script->data = NULL;
