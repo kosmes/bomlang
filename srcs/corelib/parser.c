@@ -49,12 +49,13 @@ static void eat(token_type_t type) {
 }
 
 static node_t *level1() {
+    token_t tkn = this.token;
     if (this.token.type == TokenIntegerConstant) {
         eat(TokenIntegerConstant);
-        return create_node(NodeIntegerConstant, this.token, NULL);
+        return create_node(NodeIntegerConstant, tkn, NULL);
     } else if (this.token.type == TokenFPConstant) {
         eat(TokenFPConstant);
-        return create_node(NodeFPConstant, this.token, NULL);
+        return create_node(NodeFPConstant, tkn, NULL);
     } else if (this.token.type == TokenLeftParen) {
         eat(TokenLeftParen);
         node_t *node = expr();
@@ -88,7 +89,7 @@ static node_t *level3() {
 }
 
 static node_t *level4() {
-    node_t *node = level1();
+    node_t *node = level3();
 
     while (this.token.type == TokenPlus ||
            this.token.type == TokenMinus) {
