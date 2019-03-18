@@ -147,6 +147,8 @@ script_t *compile(node_t *root_node) {
     }
     final_script(result.script);
 
+    buf_push(root_script->text, OP_HALT);
+
     return root_script;
 }
 
