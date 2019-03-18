@@ -35,6 +35,8 @@ void set_script(vm_t *vm, script_t *script) {
 }
 
 #define NEXT_CODE(vm) ((vm)->text[(vm)->reg[PROGRAM_CODE]++])
+#define THROW_ERROR(vm, errcode) (error(errcode, 0), \
+        (vm)->reg[MACHINE_FLAG] = STATUS_ERROR_THROWN)
 
 #define CHECK_STACK_OVERFLOW(vm, offset) if ((vm)->reg[STACK_POINTER] + offset >= STACK_SIZE) \
     { error(STACK_OVERFLOW, 0); }
@@ -174,7 +176,7 @@ static void op_div(vm_t *vm) {
             int rhs = pop_int(vm);
             int lhs = pop_int(vm);
             if (rhs == 0 || lhs == 0) {
-                error(DIVIDE_BY_ZERO, 0);
+                THROW_ERROR(vm, DIVIDE_BY_ZERO);
             } else {
                 push_int(vm, lhs / rhs);
             }
@@ -184,7 +186,7 @@ static void op_div(vm_t *vm) {
             double lhs = pop_double(vm);
 
             if (rhs == 0 || lhs == 0) {
-                error(DIVIDE_BY_ZERO, 0);
+                THROW_ERROR(vm, DIVIDE_BY_ZERO);
             } else {
                 push_double(vm, lhs / rhs);
             }
@@ -247,6 +249,11 @@ void run_vm(vm_t *vm) {
     bool running = true;
 
     do {
+        if (vm->reg[MACHINE_FLAG] != STATUS_GOOD) {
+            running = false;
+            break;
+        }
+
         char opcode = NEXT_CODE(vm);
         switch(opcode) {
             case OP_HALT:

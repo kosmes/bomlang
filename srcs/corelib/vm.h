@@ -18,8 +18,14 @@ enum reg {
     PROGRAM_CODE,
     STACK_POINTER,
     FRAME_POINTER,
+    MACHINE_FLAG,
 
     UNUSED_REG,
+};
+
+enum MACHINE_STATUS {
+    STATUS_GOOD,
+    STATUS_ERROR_THROWN,
 };
 
 struct vm {
