@@ -4,7 +4,7 @@
 
 #include "compiler.h"
 #include "buf.h"
-#include "errno.h"
+#include "error.h"
 
 #define COMBINE_BUFFER(src, dest) for (size_t i = 0; i < buf_len(dest); i++) { buf_push(src, dest[i]); }
 

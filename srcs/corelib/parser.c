@@ -4,7 +4,7 @@
 
 #include "parser.h"
 #include "buf.h"
-#include "errno.h"
+#include "error.h"
 
 struct parser {
     token_t *tokens;
