@@ -11,9 +11,9 @@ void init_vm(vm_t *vm) {
         vm->full_mem[i] = 0;
     }
 
-    vm->reg[PROGRAM_CODE] = 0;
-    vm->reg[FRAME_POINTER] = 0;
-    vm->reg[STACK_POINTER] = 0;
+    vm->reg[REG_PROGRAM_CODE] = 0;
+    vm->reg[REG_FRAME_POINTER] = 0;
+    vm->reg[REG_STACK_POINTER] = 0;
 
     vm->data = NULL;
     vm->text = NULL;
@@ -34,14 +34,14 @@ void set_script(vm_t *vm, script_t *script) {
     }
 }
 
-#define NEXT_CODE(vm) ((vm)->text[(vm)->reg[PROGRAM_CODE]++])
+#define NEXT_CODE(vm) ((vm)->text[(vm)->reg[REG_PROGRAM_CODE]++])
 #define THROW_ERROR(vm, errcode) (error(errcode, 0), \
-        (vm)->reg[MACHINE_FLAG] = STATUS_ERROR_THROWN)
+        (vm)->reg[REG_MACHINE_STATUS] = STATUS_ERROR_THROWN)
 
-#define CHECK_STACK_OVERFLOW(vm, offset) if ((vm)->reg[STACK_POINTER] + offset >= STACK_SIZE) \
+#define CHECK_STACK_OVERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] + offset >= STACK_SIZE) \
     { error(STACK_OVERFLOW, 0); }
 
-#define CHECK_STACK_UNDERFLOW(vm, offset) if ((vm)->reg[STACK_POINTER] - offset < 0) \
+#define CHECK_STACK_UNDERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] - offset < 0) \
     { error(STACK_UNDERFLOW, 0); }
 
 static void push_int(vm_t *vm, int data) {
@@ -51,7 +51,7 @@ static void push_int(vm_t *vm, int data) {
     cvt.asInteger = data;
 
     for(int i = 0; i < 4; i++) {
-        vm->stack[vm->reg[STACK_POINTER]++] = cvt.asBytes[i];
+        vm->stack[vm->reg[REG_STACK_POINTER]++] = cvt.asBytes[i];
     }
 }
 
@@ -62,19 +62,19 @@ static void push_double(vm_t *vm, double data) {
     cvt.asDouble = data;
 
     for(int i = 0; i < 8; i++) {
-        vm->stack[vm->reg[STACK_POINTER]++] = cvt.asBytes[i];
+        vm->stack[vm->reg[REG_STACK_POINTER]++] = cvt.asBytes[i];
     }
 }
 
 static int pop_int(vm_t *vm) {
     CHECK_STACK_UNDERFLOW(vm, 4);
 
-    short stack_point = vm->reg[STACK_POINTER];
+    short stack_point = vm->reg[REG_STACK_POINTER];
     converter_t cvt;
     cvt.asDouble = 0;
 
     for(int i = 0; i < 4; i++) {
-        cvt.asBytes[3 - i] = vm->stack[--vm->reg[STACK_POINTER]];
+        cvt.asBytes[3 - i] = vm->stack[--vm->reg[REG_STACK_POINTER]];
     }
 
     return cvt.asInteger;
@@ -83,11 +83,11 @@ static int pop_int(vm_t *vm) {
 static double pop_double(vm_t *vm) {
     CHECK_STACK_UNDERFLOW(vm, 8);
 
-    short stack_point = vm->reg[STACK_POINTER];
+    short stack_point = vm->reg[REG_STACK_POINTER];
     converter_t cvt;
 
     for(int i = 0; i < 8; i++) {
-        cvt.asBytes[7 - i] = vm->stack[--vm->reg[STACK_POINTER]];
+        cvt.asBytes[7 - i] = vm->stack[--vm->reg[REG_STACK_POINTER]];
     }
 
     return cvt.asInteger;
@@ -249,7 +249,7 @@ void run_vm(vm_t *vm) {
     bool running = true;
 
     do {
-        if (vm->reg[MACHINE_FLAG] != STATUS_GOOD) {
+        if (vm->reg[REG_MACHINE_STATUS] != STATUS_GOOD) {
             running = false;
             break;
         }
