@@ -24,6 +24,12 @@
 #   define PLATFORM PLATFORM_LINUX
 #endif
 
+#if defined(_DEBUG) || defined(DEBUG)
+#   define DEBUG_MODE 1
+#else
+#   define DEBUG_MODE 0
+#endif
+
 #if PLATFORM == PLATFORM_WIN32
 #   if COMPILER == COMPILER_MSVC
 #		if defined(STATIC_LIB)
