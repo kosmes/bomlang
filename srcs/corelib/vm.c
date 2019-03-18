@@ -36,13 +36,13 @@ void set_script(vm_t *vm, script_t *script) {
 
 #define NEXT_CODE(vm) ((vm)->text[(vm)->reg[REG_PROGRAM_CODE]++])
 #define THROW_ERROR(vm, errcode) (error(errcode, 0), \
-        (vm)->reg[REG_MACHINE_STATUS] = STATUS_ERROR_THROWN)
+        (vm)->reg[REG_MACHINE_STATUS] = STATUS_ERROR_THROWN); return;
 
 #define CHECK_STACK_OVERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] + offset >= STACK_SIZE) \
-    { error(ERR_STACK_OVERFLOW, 0); }
+    { error(ERR_STACK_OVERFLOW, 0); return; }
 
 #define CHECK_STACK_UNDERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] - offset < 0) \
-    { error(ERR_STACK_UNDERFLOW, 0); }
+    { error(ERR_STACK_UNDERFLOW, 0); return; }
 
 static void push_int(vm_t *vm, int data) {
     CHECK_STACK_OVERFLOW(vm, 4);
@@ -177,9 +177,9 @@ static void op_div(vm_t *vm) {
             int lhs = pop_int(vm);
             if (rhs == 0 || lhs == 0) {
                 THROW_ERROR(vm, ERR_DIVIDE_BY_ZERO);
-            } else {
-                push_int(vm, lhs / rhs);
             }
+
+            push_int(vm, lhs / rhs);
         } break;
         case TYPE_DOUBLE: {
             double rhs = pop_double(vm);
@@ -187,9 +187,9 @@ static void op_div(vm_t *vm) {
 
             if (rhs == 0 || lhs == 0) {
                 THROW_ERROR(vm, ERR_DIVIDE_BY_ZERO);
-            } else {
-                push_double(vm, lhs / rhs);
             }
+
+            push_double(vm, lhs / rhs);
         } break;
         default:
             break;
