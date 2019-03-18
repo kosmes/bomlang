@@ -8,45 +8,15 @@
 
 #define COMBINE_BUFFER(src, dest) for (size_t i = 0; i < buf_len(dest); i++) { buf_push(src, dest[i]); }
 
-script_t *root_script;
+static script_t *root_script;
 
-visit_result_t visit_bin_op(node_t *node);
+static visit_result_t visit(node_t *node);
 
-visit_result_t visit_unary_op(node_t *node);
-
-visit_result_t visit_integer_constant(node_t *node);
-
-visit_result_t visit_fp_constant(node_t *node);
-
-type_code_t check_casting(script_t *target_script, type_code_t origin_type, type_code_t to_type, bool force);
+static type_code_t check_casting(script_t *target_script, type_code_t origin_type, 
+                                 type_code_t to_type, bool force);
 
 
-visit_result_t visit(node_t *node) {
-    switch(node->type) {
-        case NodeIntegerConstant:
-            return visit_integer_constant(node);
-
-        case NodeFPConstant:
-            return visit_fp_constant(node);
-
-        case NodeBinOp:
-            return visit_bin_op(node);
-
-        case NodeUnaryOp:
-            return visit_unary_op(node);
-
-        default: {
-            visit_result_t result;
-
-            result.script = NULL;
-            result.type_id = TYPE_NONE;
-
-            return result;
-        }
-    }
-}
-
-visit_result_t visit_bin_op(node_t *node) {
+static visit_result_t visit_bin_op(node_t *node) {
     visit_result_t result;
     result.script = malloc(sizeof(script_t));
 
@@ -102,7 +72,7 @@ visit_result_t visit_bin_op(node_t *node) {
     return result;
 }
 
-visit_result_t visit_unary_op(node_t *node) {
+static visit_result_t visit_unary_op(node_t *node) {
     visit_result_t result;
     result.script = malloc(sizeof(script_t));
     init_script(result.script);
@@ -121,7 +91,7 @@ visit_result_t visit_unary_op(node_t *node) {
     return result;
 }
 
-visit_result_t visit_integer_constant(node_t *node) {
+static visit_result_t visit_integer_constant(node_t *node) {
     visit_result_t result;
     result.script = malloc(sizeof(script_t));
     result.type_id = TYPE_INT;
@@ -141,7 +111,7 @@ visit_result_t visit_integer_constant(node_t *node) {
     return result;
 }
 
-visit_result_t visit_fp_constant(node_t *node) {
+static visit_result_t visit_fp_constant(node_t *node) {
     visit_result_t result;
     result.script = malloc(sizeof(script_t));
     result.type_id = TYPE_DOUBLE;
@@ -159,6 +129,30 @@ visit_result_t visit_fp_constant(node_t *node) {
     }
 
     return result;
+}
+
+static visit_result_t visit(node_t *node) {
+    switch (node->type) {
+    case NodeIntegerConstant:
+        return visit_integer_constant(node);
+
+    case NodeFPConstant:
+        return visit_fp_constant(node);
+
+    case NodeBinOp:
+        return visit_bin_op(node);
+
+    case NodeUnaryOp:
+        return visit_unary_op(node);
+
+    default:{
+        visit_result_t result;
+
+        result.script = NULL;
+        result.type_id = TYPE_NONE;
+
+        return result;
+    } }
 }
 
 script_t *compile(node_t *root_node) {
@@ -181,7 +175,8 @@ script_t *compile(node_t *root_node) {
     return root_script;
 }
 
-type_code_t check_casting(script_t *target_script, type_code_t origin_type, type_code_t to_type, bool force) {
+static type_code_t check_casting(script_t *target_script, type_code_t origin_type, 
+                                 type_code_t to_type, bool force) {
     if (origin_type == TYPE_NONE || to_type == TYPE_NONE) {
         return TYPE_NONE;
     }

@@ -6,11 +6,15 @@
 #include "buf.h"
 #include "error.h"
 
+typedef struct parser parser_t;
+
 struct parser {
     token_t *tokens;
     token_t token;
     size_t pos;
-} this;
+};
+
+static parser_t this;
 
 static node_t *level1();
 

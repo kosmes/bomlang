@@ -11,6 +11,8 @@
     { buf_push(tokens, create_token(t1, this.line)); advance(); continue; } \
     else if (this.ch == L##c2) { buf_push(tokens, create_token(t2, this.line)); advance(); continue; }
 
+typedef struct syntax syntax_t;
+
 struct syntax {
     wchar_t *text;
     size_t text_len;
@@ -19,9 +21,11 @@ struct syntax {
     size_t pos;
 
     unsigned int line;
-} this;
+};
 
-void advance() {
+static syntax_t this;
+
+static void advance() {
     this.pos += 1;
     if (this.pos >= this.text_len) {
         this.ch = WNULL;
@@ -33,7 +37,7 @@ void advance() {
     }
 }
 
-token_t get_number() {
+static token_t get_number() {
     wchar_t buf[16];
     char offset = 0;
     token_t token;
@@ -63,7 +67,7 @@ token_t get_number() {
     return token;
 }
 
-void skip_whitespace() {
+static void skip_whitespace() {
     while (this.ch != WNULL && iswspace(this.ch)) {
         advance();
     }
