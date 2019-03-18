@@ -26,7 +26,7 @@ static visit_result_t visit_bin_op(node_t *node) {
     node_t *rhs = node->child[1];
 
     if (lhs == NULL || rhs == NULL) {
-        error(NO_EXPR, node->token.line);
+        error(ERR_NO_EXPR, node->token.line);
     }
 
     visit_result_t lhs_result = visit(lhs);

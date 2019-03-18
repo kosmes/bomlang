@@ -40,12 +40,12 @@ DLL_EXPORT node_t *do_parse(token_t *tokens) {
 
 static void eat(TOKEN_TYPES type) {
     if (this.token.type != type) {
-        error(SYNTAX_ERR, this.token.line);
+        error(ERR_SYNTAX, this.token.line);
         this.token.type = TokenNone;
     } else {
         this.pos += 1;
         if (this.pos > buf_len(this.tokens)) {
-            error(SYNTAX_ERR, this.token.line);
+            error(ERR_SYNTAX, this.token.line);
         } else {
             this.token = this.tokens[this.pos];
         }

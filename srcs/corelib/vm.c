@@ -39,10 +39,10 @@ void set_script(vm_t *vm, script_t *script) {
         (vm)->reg[REG_MACHINE_STATUS] = STATUS_ERROR_THROWN)
 
 #define CHECK_STACK_OVERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] + offset >= STACK_SIZE) \
-    { error(STACK_OVERFLOW, 0); }
+    { error(ERR_STACK_OVERFLOW, 0); }
 
 #define CHECK_STACK_UNDERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] - offset < 0) \
-    { error(STACK_UNDERFLOW, 0); }
+    { error(ERR_STACK_UNDERFLOW, 0); }
 
 static void push_int(vm_t *vm, int data) {
     CHECK_STACK_OVERFLOW(vm, 4);
@@ -176,7 +176,7 @@ static void op_div(vm_t *vm) {
             int rhs = pop_int(vm);
             int lhs = pop_int(vm);
             if (rhs == 0 || lhs == 0) {
-                THROW_ERROR(vm, DIVIDE_BY_ZERO);
+                THROW_ERROR(vm, ERR_DIVIDE_BY_ZERO);
             } else {
                 push_int(vm, lhs / rhs);
             }
@@ -186,7 +186,7 @@ static void op_div(vm_t *vm) {
             double lhs = pop_double(vm);
 
             if (rhs == 0 || lhs == 0) {
-                THROW_ERROR(vm, DIVIDE_BY_ZERO);
+                THROW_ERROR(vm, ERR_DIVIDE_BY_ZERO);
             } else {
                 push_double(vm, lhs / rhs);
             }
