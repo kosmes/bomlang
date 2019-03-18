@@ -17,6 +17,7 @@ enum node_type {
     NodeFPConstant,
 
     NodeBinOp,
+    NodeUnaryOp,
 };
 
 struct node {

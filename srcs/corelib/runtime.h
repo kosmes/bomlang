@@ -38,6 +38,8 @@ enum op_code {
      */
     OP_CAST,
 
+    OP_INVERT,
+
     OP_DBG_PRNIT,
 };
 

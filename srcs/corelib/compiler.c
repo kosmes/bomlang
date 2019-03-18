@@ -6,9 +6,13 @@
 #include "buf.h"
 #include "errno.h"
 
+#define COMBINE_BUFFER(src, dest) for (size_t i = 0; i < buf_len(dest); i++) { buf_push(src, dest[i]); }
+
 script_t *root_script;
 
 visit_result_t visit_bin_op(node_t *node);
+
+visit_result_t visit_unary_op(node_t *node);
 
 visit_result_t visit_integer_constant(node_t *node);
 
@@ -27,6 +31,9 @@ visit_result_t visit(node_t *node) {
 
         case NodeBinOp:
             return visit_bin_op(node);
+
+        case NodeUnaryOp:
+            return visit_unary_op(node);
 
         default: {
             visit_result_t result;
@@ -90,6 +97,25 @@ visit_result_t visit_bin_op(node_t *node) {
             buf_push(result.script->text, OP_DIV);
             buf_push(result.script->text, result.type_id);
             break;
+    }
+
+    return result;
+}
+
+visit_result_t visit_unary_op(node_t *node) {
+    visit_result_t result;
+    result.script = malloc(sizeof(script_t));
+    init_script(result.script);
+
+    visit_result_t visit_result = visit(node->child[0]);
+    result.type_id = visit_result.type_id;
+
+    COMBINE_BUFFER(result.script->text, visit_result.script->text);
+    final_script(result.script);
+
+    if (node->token.type == TokenMinus) {
+        buf_push(result.script->text, OP_INVERT);
+        buf_push(result.script->text, result.type_id);
     }
 
     return result;
