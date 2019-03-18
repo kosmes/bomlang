@@ -159,6 +159,7 @@ type_code_t check_casting(script_t *target_script, type_code_t origin_type, type
 
     if ((origin_type < to_type) || force) {
         buf_push(target_script->text, OP_CAST);
+        buf_push(target_script->text, origin_type);
         buf_push(target_script->text, to_type);
         return to_type;
     }
