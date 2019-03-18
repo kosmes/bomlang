@@ -12,8 +12,8 @@ static script_t *root_script;
 
 static visit_result_t visit(node_t *node);
 
-static type_code_t check_casting(script_t *target_script, type_code_t origin_type, 
-                                 type_code_t to_type, bool force);
+static TYPE_CODES check_casting(script_t *target_script, TYPE_CODES origin_type, 
+                                 TYPE_CODES to_type, bool force);
 
 
 static visit_result_t visit_bin_op(node_t *node) {
@@ -175,8 +175,8 @@ script_t *compile(node_t *root_node) {
     return root_script;
 }
 
-static type_code_t check_casting(script_t *target_script, type_code_t origin_type, 
-                                 type_code_t to_type, bool force) {
+static TYPE_CODES check_casting(script_t *target_script, TYPE_CODES origin_type, 
+                                 TYPE_CODES to_type, bool force) {
     if (origin_type == TYPE_NONE || to_type == TYPE_NONE) {
         return TYPE_NONE;
     }

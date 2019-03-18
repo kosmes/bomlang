@@ -94,7 +94,7 @@ static double pop_double(vm_t *vm) {
 }
 
 static void op_const(vm_t *vm) {
-    type_code_t code = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES code = (TYPE_CODES) NEXT_CODE(vm);
 
     converter_t cvt;
     cvt.asDouble = 0;
@@ -112,7 +112,7 @@ static void op_const(vm_t *vm) {
 }
 
 static void op_add(vm_t *vm) {
-    type_code_t code = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES code = (TYPE_CODES) NEXT_CODE(vm);
 
     switch (code) {
         case TYPE_INT: {
@@ -131,7 +131,7 @@ static void op_add(vm_t *vm) {
 }
 
 static void op_sub(vm_t *vm) {
-    type_code_t code = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES code = (TYPE_CODES) NEXT_CODE(vm);
 
     switch (code) {
         case TYPE_INT: {
@@ -150,7 +150,7 @@ static void op_sub(vm_t *vm) {
 }
 
 static void op_mul(vm_t *vm) {
-    type_code_t code = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES code = (TYPE_CODES) NEXT_CODE(vm);
 
     switch (code) {
         case TYPE_INT: {
@@ -169,7 +169,7 @@ static void op_mul(vm_t *vm) {
 }
 
 static void op_div(vm_t *vm) {
-    type_code_t code = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES code = (TYPE_CODES) NEXT_CODE(vm);
 
     switch (code) {
         case TYPE_INT: {
@@ -197,8 +197,8 @@ static void op_div(vm_t *vm) {
 }
 
 static void op_cast(vm_t *vm) {
-    type_code_t from_type = (type_code_t) NEXT_CODE(vm);
-    type_code_t to_type = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES from_type = (TYPE_CODES) NEXT_CODE(vm);
+    TYPE_CODES to_type = (TYPE_CODES) NEXT_CODE(vm);
 
     if (from_type == TYPE_INT) {
         int data = pop_int(vm);
@@ -222,7 +222,7 @@ static void op_cast(vm_t *vm) {
 }
 
 static void op_invert(vm_t *vm) {
-    type_code_t from_type = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES from_type = (TYPE_CODES) NEXT_CODE(vm);
 
     if (from_type == TYPE_INT) {
         int data = pop_int(vm);
@@ -234,7 +234,7 @@ static void op_invert(vm_t *vm) {
 }
 
 static void op_dbg_print(vm_t *vm) {
-    type_code_t code = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES code = (TYPE_CODES) NEXT_CODE(vm);
     switch (code) {
         case TYPE_INT:
             wprintf(L"%d\n", pop_int(vm));

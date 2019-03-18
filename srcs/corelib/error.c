@@ -14,6 +14,6 @@ const wchar_t *errstr[] = {
         L"0으로 나누었습니다.",
 };
 
-void error(enum errco err, unsigned int line) {
+void error(enum ERROR_CODE err, unsigned int line) {
     wprintf(L"오류 [ %d 줄 ] %ls\n", line, errstr[err]);
 }

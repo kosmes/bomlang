@@ -44,7 +44,7 @@ void print_node(node_t *node) {
 
 #define fetch() script->text[offset++]
 
-void print_type(type_code_t code) {
+void print_type(TYPE_CODES code) {
     const wchar_t *str[] = {
             L"none",
             L"integer",
@@ -54,7 +54,7 @@ void print_type(type_code_t code) {
     wprintf(L"\ttype: %7ls ", str[(char) code]);
 }
 
-void print_const(script_t *script, type_code_t code, size_t *offset) {
+void print_const(script_t *script, TYPE_CODES code, size_t *offset) {
     converter_t cvt;
     cvt.asDouble = 0;
 
@@ -83,7 +83,7 @@ void print_script(script_t *script) {
     while(offset < len) {
         switch (fetch()) {
             case OP_CONST: {
-                type_code_t type = fetch();
+                TYPE_CODES type = fetch();
                 wprintf(L"const ");
                 print_type(type);
                 print_const(script, type, &offset);

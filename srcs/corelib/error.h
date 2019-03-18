@@ -7,7 +7,7 @@
 
 #include "common.h"
 
-enum errco {
+enum ERROR_CODE {
     SYNTAX_ERR,
     NO_EXPR,
     SEMI_EXPECTED,
@@ -22,6 +22,6 @@ enum errco {
  * @param err   출력할 에러 코드
  * @param line  에러가 난 줄
  */
-DLL_EXPORT void error(enum errco err, unsigned int line);
+DLL_EXPORT void error(enum ERROR_CODE err, unsigned int line);
 
 #endif //BOM_ERRNO_H

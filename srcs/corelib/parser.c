@@ -38,7 +38,7 @@ DLL_EXPORT node_t *do_parse(token_t *tokens) {
     return expr();
 }
 
-static void eat(token_type_t type) {
+static void eat(TOKEN_TYPES type) {
     if (this.token.type != type) {
         error(SYNTAX_ERR, this.token.line);
         this.token.type = TokenNone;
