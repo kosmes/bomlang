@@ -111,7 +111,7 @@ visit_result_t visit_unary_op(node_t *node) {
     result.type_id = visit_result.type_id;
 
     COMBINE_BUFFER(result.script->text, visit_result.script->text);
-    final_script(result.script);
+    final_script(visit_result.script);
 
     if (node->token.type == TokenMinus) {
         buf_push(result.script->text, OP_INVERT);
