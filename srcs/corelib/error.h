@@ -14,6 +14,7 @@ enum errco {
     UNBAL_PARENS,
     STACK_OVERFLOW,
     STACK_UNDERFLOW,
+    DIVIDE_BY_ZERO,
 };
 
 /**

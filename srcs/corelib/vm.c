@@ -173,12 +173,21 @@ static void op_div(vm_t *vm) {
         case TYPE_INT: {
             int rhs = pop_int(vm);
             int lhs = pop_int(vm);
-            push_int(vm, lhs / rhs);
+            if (rhs == 0 || lhs == 0) {
+                error(DIVIDE_BY_ZERO, 0);
+            } else {
+                push_int(vm, lhs / rhs);
+            }
         } break;
         case TYPE_DOUBLE: {
             double rhs = pop_double(vm);
             double lhs = pop_double(vm);
-            push_double(vm, lhs / rhs);
+
+            if (rhs == 0 || lhs == 0) {
+                error(DIVIDE_BY_ZERO, 0);
+            } else {
+                push_double(vm, lhs / rhs);
+            }
         } break;
         default:
             break;
