@@ -1,10 +1,11 @@
-#include <locale.h>
+﻿#include <locale.h>
 
 #include "parser.h"
 #include "syntax.h"
 #include "buf.h"
 #include "compiler.h"
 #include "runtime.h"
+#include "vm.h"
 
 static wchar_t buffer[2048];
 
@@ -50,7 +51,7 @@ void print_type(type_code_t code) {
             L"double"
     };
 
-    wprintf(L"\ttype: %ls ", str[(char) code]);
+    wprintf(L"\ttype: %7ls ", str[(char) code]);
 }
 
 void print_const(script_t *script, type_code_t code, size_t *offset) {
@@ -101,10 +102,23 @@ void print_script(script_t *script) {
             case OP_MUL: {
                 wprintf(L"mul ");
                 print_type(fetch());
+                wprintf(L"\n");
             } break;
             case OP_DIV: {
                 wprintf(L"div ");
                 print_type(fetch());
+                wprintf(L"\n");
+            } break;
+            case OP_CAST: {
+                wprintf(L"cast ");
+                print_type(fetch());
+                print_type(fetch());
+                wprintf(L"\n");
+            } break;
+            case OP_INVERT: {
+                wprintf(L"invert ");
+                print_type(fetch());
+                wprintf(L"\n");
             } break;
         }
     }
@@ -131,6 +145,15 @@ int main(void) {
 
         script_t *script = compile(root_node);
         print_script(script);
+
+        vm_t vm;
+        init_vm(&vm);
+
+        set_script(&vm, script);
+        final_script(script);
+
+        run_vm(&vm);
+        final_vm(&vm);
     }
     return 0;
 }
