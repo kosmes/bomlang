@@ -12,6 +12,8 @@ enum errco {
     NO_EXPR,
     SEMI_EXPECTED,
     UNBAL_PARENS,
+    STACK_OVERFLOW,
+    STACK_UNDERFLOW,
 };
 
 /**
