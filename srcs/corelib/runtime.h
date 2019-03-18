@@ -37,6 +37,8 @@ enum op_code {
      * @code    OP_CAST '바꿀 타입'
      */
     OP_CAST,
+
+    OP_DBG_PRNIT,
 };
 
 #endif //BOM_OPCODE_H
