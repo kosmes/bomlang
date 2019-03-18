@@ -25,16 +25,6 @@ void final_vm(vm_t *vm) {
 }
 
 void set_script(vm_t *vm, script_t *script) {
-    if (vm->data != NULL) {
-        buf_free(vm->data);
-        vm->data = NULL;
-    }
-
-    if (vm->text != NULL) {
-        buf_free(vm->text);
-        vm->text = NULL;
-    }
-
     for (int i = 0; i < buf_len(script->data); i++) {
         buf_push(vm->data, script->data[i]);
     }
