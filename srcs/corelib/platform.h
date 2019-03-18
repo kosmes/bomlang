@@ -18,7 +18,7 @@
 #   pragma error "No supported compiler"
 #endif
 
-#if defined(__WIN32__) || defined(_WIN32_)
+#if defined(__WIN32__) || defined(_WIN32)
 #   define PLATFORM PLATFORM_WIN32
 #else
 #   define PLATFORM PLATFORM_LINUX
@@ -27,12 +27,12 @@
 #if PLATFORM == PLATFORM_WIN32
 #   if COMPILER == COMPILER_MSVC
 #		if defined(STATIC_LIB)
-#			define UTILITY_EXPORT
+#			define DLL_EXPORT
 #		else
-#			if defined(UTILITY_EXPORTS)
-#				define UTILITY_EXPORT __declspec(dllexport)
+#			if defined(EXPORTS)
+#				define DLL_EXPORT __declspec(dllexport)
 #			else
-#				define UTILITY_EXPORT __declspec(dllimport)
+#				define DLL_EXPORT __declspec(dllimport)
 #			endif
 #		endif
 #   else
