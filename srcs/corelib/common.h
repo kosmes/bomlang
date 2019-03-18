@@ -27,7 +27,7 @@ union converter {
     double asDouble;
     wchar_t asChar;
     size_t asSize;
-    char asBytes[8];
+    unsigned char asBytes[8];
 };
 
 #endif /* ifndef COMMON_H */
