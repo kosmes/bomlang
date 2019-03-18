@@ -127,7 +127,7 @@ void print_script(script_t *script) {
 int main(void) {
     setlocale(LC_ALL, "");
 
-    wprintf(L"봄 프로그래밍 언어 0.0.1\n");
+    wprintf(L"봄 인터프리터 0.0.1 베타 버전\n");
     wprintf(L"종료하려면 Ctrl+C를 누르거나 '종료'를 입력하세요.\n");
 
     while (true) {
@@ -144,7 +144,9 @@ int main(void) {
         node_t *root_node = do_parse(tokens);
 
         script_t *script = compile(root_node);
+#if DEBUG_MODE
         print_script(script);
+#endif
 
         vm_t vm;
         init_vm(&vm);

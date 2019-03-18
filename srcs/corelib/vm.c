@@ -236,10 +236,10 @@ static void op_dbg_print(vm_t *vm) {
     type_code_t code = (type_code_t) NEXT_CODE(vm);
     switch (code) {
         case TYPE_INT:
-            wprintf(L"result: %d\n", pop_int(vm));
+            wprintf(L"%d\n", pop_int(vm));
             break;
         case TYPE_DOUBLE:
-            wprintf(L"result: %f\n", pop_double(vm));
+            wprintf(L"%f\n", pop_double(vm));
             break;
     }
 }
@@ -251,7 +251,7 @@ void run_vm(vm_t *vm) {
         char opcode = NEXT_CODE(vm);
         switch(opcode) {
             case OP_HALT:
-                wprintf(L"program halted\n");
+                wprintf(L"프로그램 종료.\n");
                 running = false;
                 break;
 
