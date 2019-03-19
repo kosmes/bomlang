@@ -12,6 +12,7 @@ const u16char *errstr[] = {
         L"가득찬 스택에 데이터를 집어넣으려고 시도했습니다.",
         L"비어있는 스택에 데이터를 가져오려고 시도했습니다.",
         L"0으로 나누었습니다.",
+        L"파일 끝이 잘못되었습니다.",
 };
 
 void error(enum ERROR_CODE err, unsigned int line) {
