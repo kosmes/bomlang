@@ -131,6 +131,13 @@ static visit_result_t visit_fp_constant(node_t *node) {
     return result;
 }
 
+static visit_result_t visit_compound(node_t *node) {
+    size_t len = buf_len(node->child);
+    for (int i = 0; i < len; i++) {
+        visit(node->child[len]);
+    }
+}
+
 static visit_result_t visit(node_t *node) {
     switch (node->type) {
         case NodeIntegerConstant:
@@ -144,6 +151,9 @@ static visit_result_t visit(node_t *node) {
 
         case NodeUnaryOp:
             return visit_unary_op(node);
+
+        case NodeCompound:
+            return visit_compound(node);
 
         default: {
             visit_result_t result;
