@@ -5,10 +5,13 @@
 #include "compiler.h"
 #include "buf.h"
 #include "error.h"
+#include "table.h"
 
 #define COMBINE_BUFFER(src, dest) for (size_t i = 0; i < buf_len(dest); i++) { buf_push(src, dest[i]); }
 
 static script_t *root_script;
+static table_t *scope_table;
+static size_t offset = 0;
 
 static visit_result_t visit(node_t *node);
 
@@ -65,7 +68,7 @@ static visit_result_t visit_bin_op(node_t *node) {
     node_t *rhs = node->child[1];
 
     if (lhs == NULL || rhs == NULL) {
-        error(ERR_NO_EXPR, node->token.line);
+        error_line(ERR_NO_EXPR, node->token.line);
     }
 
     visit_result_t lhs_result = visit(lhs);
@@ -130,11 +133,65 @@ static visit_result_t visit_unary_op(node_t *node) {
     return result;
 }
 
+static visit_result_t visit_assign_op(node_t *node) {
+    visit_result_t result;
+    result.script = malloc(sizeof(script_t));
+
+    init_script(result.script);
+
+    node_t *lhs = node->child[0];
+    node_t *rhs = node->child[1];
+
+    if (lhs == NULL || rhs == NULL) {
+        error_line(ERR_NO_EXPR, node->token.line);
+        return result;
+    }
+
+    visit_result_t rhs_result = visit(rhs);
+    result.type_id = rhs_result.type_id;
+
+    table_pair_t *pair = find_by_key(scope_table, lhs->token.str);
+
+    if (pair == NULL) {
+        size_t *slot_ptr = malloc(sizeof(size_t));
+        *(slot_ptr) = offset++;
+        if ((pair = insert_value(scope_table, lhs->token.str, slot_ptr)) == NULL) {
+            error(ERR_ERROR);
+            return result;
+        }
+    }
+
+    size_t slot = *((size_t *) pair->data);
+
+    COMBINE_BUFFER(result.script->text, rhs_result.script->text);
+
+    buf_push(result.script->text, OP_STORE);
+    buf_push(result.script->text, rhs_result.type_id);
+
+    converter_t cvt;
+    cvt.asSize = slot;
+
+    for (int i = 0; i < 8; i++) {
+        buf_push(result.script->text, cvt.asBytes[i]);
+    }
+
+    return result;
+}
+
 static visit_result_t visit_compound(node_t *node) {
+    visit_result_t result;
+    result.script = malloc(sizeof(script_t));
+
+    init_script(result.script);
+
     size_t len = buf_len(node->child);
     for (int i = 0; i < len; i++) {
-        visit(node->child[len]);
+        visit_result_t visit_result = visit(node->child[i]);
+        COMBINE_BUFFER(result.script->text, visit_result.script->text);
+        final_script(visit_result.script);
     }
+
+    return result;
 }
 
 static visit_result_t visit(node_t *node) {
@@ -151,14 +208,18 @@ static visit_result_t visit(node_t *node) {
         case NodeUnaryOp:
             return visit_unary_op(node);
 
+        case NodeAssignOp:
+            return visit_assign_op(node);
+
         case NodeCompound:
             return visit_compound(node);
 
         default: {
             visit_result_t result;
 
-            result.script = NULL;
+            result.script = malloc(sizeof(script_t));
             result.type_id = TYPE_NONE;
+            init_script(result.script);
 
             return result;
         }
@@ -168,6 +229,11 @@ static visit_result_t visit(node_t *node) {
 script_t *compile(node_t *root_node) {
     root_script = malloc(sizeof(script_t));
     init_script(root_script);
+
+    if (scope_table == NULL) {
+        scope_table = malloc(sizeof(table_t));
+        init_table(scope_table);
+    }
 
     visit_result_t result = visit(root_node);
 
