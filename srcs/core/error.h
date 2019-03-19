@@ -8,6 +8,7 @@
 #include "common.h"
 
 enum ERROR_CODE {
+    ERR_ERROR,
     ERR_SYNTAX,
     ERR_NO_EXPR,
     ERR_SEMI_EXPECTED,

@@ -5,6 +5,7 @@
 #include "error.h"
 
 const u16char *errstr[] = {
+        L"오류",
         L"구문 오류.",
         L"식이 없습니다.",
         L"';'가 필요합니다.",
