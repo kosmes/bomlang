@@ -40,6 +40,10 @@ DLL_EXPORT node_t *do_parse(token_t *tokens) {
     }
 
     node_t *root_node = expr();
+    if (this.token.type != TokenEndOfFile) {
+        error(ERR_SYNTAX, this.token.line);
+        this.err_count++;
+    }
     if (this.err_count != 0) {
         destroy_node(root_node);
         wprintf(L"오류 '%d'개가 검출되었습니다.\n", this.err_count);
