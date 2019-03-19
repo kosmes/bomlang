@@ -103,6 +103,8 @@ static node_t *level1() {
         node_t *node = expr();
         eat(TokenRightParen, ERR_UNBAL_PARENS);
         return node;
+    } else {
+        return variable();
     }
 
     return NULL;
