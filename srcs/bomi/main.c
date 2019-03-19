@@ -7,6 +7,8 @@
 #include "runtime.h"
 #include "vm.h"
 
+#include "table.h"
+
 static u16char buffer[2048];
 
 /* Fake readline function */
@@ -21,30 +23,57 @@ u16char *readline(u16char *prompt) {
 
 void add_history(u16char* unused) {}
 
-void print_node(node_t *node) {
-    wprintf(L"노드: %d", node->type);
+void print_node(node_t *node, int indent) {
+    for (int i = 0; i < indent; i++) {
+        wprintf(L"\t");
+    }
+
+    wprintf(L"노드: ");
     switch(node->type) {
         case NodeIntegerConstant:
+            wprintf(L"NodeIntegerConstant");
             wprintf(L" 정수 값: %d\n", node->token.i32);
             break;
 
         case NodeFPConstant:
+            wprintf(L"NodeFPConstant");
             wprintf(L" 실수 값: %lf\n", node->token.f64);
             break;
 
+        case NodeAssignOp:
+            wprintf(L"NodeAssignOp\n");
+            break;
+
+        case NodeCompound:
+            wprintf(L"NodeCompound\n");
+            break;
+
+        case NodeUnaryOp:
+            wprintf(L"NodeUnaryOp\n");
+            break;
+
+        case NodeVar:
+            wprintf(L"NodeVar");
+            wprintf(L" 변수 값 : %ls\n", node->token.str);
+            break;
+
+        case NodeEmpty:
+            wprintf(L"NodeEmpty");
+            break;
+
         default:
-        wprintf(L"\n");
-        break;
+            wprintf(L"\n");
+            break;
     }
 
     for(int i = 0; i < buf_len(node->child); i++) {
-        print_node(node->child[i]);
+        print_node(node->child[i], indent + 1);
     }
 }
 
 #define fetch() script->text[offset++]
 
-void print_type(TYPE_CODES code) {
+void print_type(TYPE_IDS code) {
     const u16char *str[] = {
             L"none",
             L"integer",
@@ -54,7 +83,7 @@ void print_type(TYPE_CODES code) {
     wprintf(L"\ttype: %7ls ", str[(char) code]);
 }
 
-void print_const(script_t *script, TYPE_CODES code, size_t *offset) {
+void print_const(script_t *script, TYPE_IDS code, size_t *offset) {
     converter_t cvt;
     cvt.asDouble = 0;
 
@@ -83,11 +112,35 @@ void print_script(script_t *script) {
     while(offset < len) {
         switch (fetch()) {
             case OP_CONST: {
-                TYPE_CODES type = fetch();
+                TYPE_IDS type = fetch();
                 wprintf(L"const ");
                 print_type(type);
                 print_const(script, type, &offset);
                 wprintf(L"\n");
+            } break;
+            case OP_STORE: {
+                TYPE_IDS type = fetch();
+                wprintf(L"store ");
+                print_type(type);
+                converter_t cvt;
+                cvt.asDouble = 0;
+                for (int i = 0; i < 8; i++) {
+                    cvt.asBytes[i] = fetch();
+                }
+
+                wprintf(L"\tto: %zd\n", cvt.asSize);
+            } break;
+            case OP_LOAD: {
+                TYPE_IDS type = fetch();
+                wprintf(L"load ");
+                print_type(type);
+                converter_t cvt;
+                cvt.asDouble = 0;
+                for (int i = 0; i < 8; i++) {
+                    cvt.asBytes[i] = fetch();
+                }
+
+                wprintf(L"\tfrom: %zd\n", cvt.asSize);
             } break;
             case OP_ADD: {
                 wprintf(L"add ");
@@ -131,7 +184,7 @@ int main(void) {
     wprintf(L"종료하려면 Ctrl+C를 누르거나 '종료'를 입력하세요.\n");
 
     while (true) {
-        u16char *input = readline(L"bom> ");
+        u16char *input = L"ㄱ = 10 + 1.2;\n ㄴ = 10 * ㄱ;"; //readline(L"bom> ");
         if(wcscmp(input, L"종료") == 0) {
             break;
         }
@@ -147,10 +200,12 @@ int main(void) {
             continue;
         }
 
+        // print_node(root_node, 0);
+
         script_t *script = compile(root_node);
-#if DEBUG_MODE
         print_script(script);
-#endif
+
+        return 0;
 
         vm_t vm;
         init_vm(&vm);
