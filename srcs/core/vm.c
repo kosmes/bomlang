@@ -35,14 +35,14 @@ void set_script(vm_t *vm, script_t *script) {
 }
 
 #define NEXT_CODE(vm) ((vm)->text[(vm)->reg[REG_PROGRAM_CODE]++])
-#define THROW_ERROR(vm, errcode) (error(errcode, 0), \
+#define THROW_ERROR(vm, errcode) (error_line(errcode, 0), \
         (vm)->reg[REG_MACHINE_STATUS] = STATUS_ERROR_THROWN); return;
 
 #define CHECK_STACK_OVERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] + offset >= STACK_SIZE) \
-    { error(ERR_STACK_OVERFLOW, 0); return; }
+    { error_line(ERR_STACK_OVERFLOW, 0); return; }
 
 #define CHECK_STACK_UNDERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] - offset < 0) \
-    { error(ERR_STACK_UNDERFLOW, 0); return 0; }
+    { error_line(ERR_STACK_UNDERFLOW, 0); return 0; }
 
 static void push_int(vm_t *vm, int data) {
     CHECK_STACK_OVERFLOW(vm, 4);

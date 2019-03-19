@@ -19,11 +19,13 @@ enum ERROR_CODE {
     ERR_INVALID_INDEX,
 };
 
+DLL_EXPORT void error(enum ERROR_CODE err);
+
 /**
  * 주어진 에러 코드로 에러를 출력한다
  * @param err   출력할 에러 코드
  * @param line  에러가 난 줄
  */
-DLL_EXPORT void error(enum ERROR_CODE err, unsigned int line);
+DLL_EXPORT void error_line(enum ERROR_CODE err, unsigned int line);
 
 #endif //BOM_ERRNO_H

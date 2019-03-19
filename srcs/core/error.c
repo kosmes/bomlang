@@ -16,6 +16,10 @@ const u16char *errstr[] = {
         L"잘못된 색인을 참조하였습니다."
 };
 
-void error(enum ERROR_CODE err, unsigned int line) {
+void error(enum ERROR_CODE err) {
+    wprintf(L"오류 %ls\n", errstr[err]);
+}
+
+void error_line(enum ERROR_CODE err, unsigned int line) {
     wprintf(L"오류 [ %d 줄 ] %ls\n", line, errstr[err]);
 }

@@ -51,7 +51,7 @@ DLL_EXPORT node_t *do_parse(token_t *tokens) {
 
     node_t *root_node = compound();
     if (this.token.type != TokenEndOfFile) {
-        error(ERR_SYNTAX, this.token.line);
+        error_line(ERR_SYNTAX, this.token.line);
         this.err_count++;
     }
     if (this.err_count != 0) {
@@ -65,14 +65,14 @@ DLL_EXPORT node_t *do_parse(token_t *tokens) {
 
 static void eat(TOKEN_TYPES type, enum ERROR_CODE errcode) {
     if (this.token.type != type) {
-        error(errcode, this.token.line);
+        error_line(errcode, this.token.line);
 
         this.token.type = TokenNone;
         this.err_count++;
     } else {
         this.pos += 1;
         if (this.pos > buf_len(this.tokens)) {
-            error(ERR_SYNTAX, this.token.line);
+            error_line(ERR_SYNTAX, this.token.line);
 
             this.err_count++;
         } else {
@@ -171,7 +171,7 @@ static node_t **statement_list() {
     }
 
     if (this.token.type == TokenIdentifier) {
-        error(ERR_SEMI_EXPECTED, this.token.line);
+        error_line(ERR_SEMI_EXPECTED, this.token.line);
         this.err_count++;
     }
 
@@ -188,7 +188,7 @@ static node_t *statement() {
         }
 
         if (this.tokens[offset].type == TokenEndOfFile) {
-            error(ERR_INVALID_EOF, this.token.line);
+            error_line(ERR_INVALID_EOF, this.token.line);
             this.err_count++;
         }
 
