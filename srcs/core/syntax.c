@@ -25,6 +25,13 @@ struct syntax {
 
 static syntax_t this;
 
+static bool is_idable(u16char ch) {
+    const u16char *specials = L"!@#$%^&*()+=-<>,./?'\";:[]{}~`";
+    u16char data[2] = { WNULL, };
+    data[0] = ch;
+    return (wcsstr(specials, data) == NULL);
+}
+
 static void advance() {
     this.pos += 1;
     if (this.pos >= this.text_len) {
@@ -76,6 +83,30 @@ static token_t get_number() {
     return token;
 }
 
+static token_t get_id() {
+    u16char *start = NULL;
+    size_t offset = 0;
+    token_t token;
+
+    start = (this.text + this.pos);
+
+    while (this.ch != WNULL && is_idable(this.ch) && !iswspace(this.ch)) {
+        offset++;
+        advance();
+    }
+
+    u16char *id = malloc(sizeof(u16char) * (offset + 1));
+    wcsncpy(id, start, offset);
+
+    id[offset] = WNULL;
+
+    token.type = TokenIdentifier;
+    token.i32 = 0;
+    token.str = id;
+
+    return token;
+}
+
 static void skip_whitespace() {
     while (this.ch != WNULL && iswspace(this.ch)) {
         advance();
@@ -117,6 +148,11 @@ token_t *get_tokens(wchar_t *text) {
         CHECK1('*', TokenAbsterisk);
         CHECK1('/', TokenSlash);
         CHECK1('%', TokenModulus);
+
+        if (is_idable(this.ch)) {
+            buf_push(tokens, get_id());
+            continue;
+        }
     }
 
     buf_push(tokens, create_token(TokenEndOfFile, this.line));
