@@ -90,7 +90,7 @@ static double pop_double(vm_t *vm) {
         cvt.asBytes[7 - i] = vm->stack[--vm->reg[REG_STACK_POINTER]];
     }
 
-    return cvt.asInteger;
+    return cvt.asDouble;
 }
 
 static void op_const(vm_t *vm) {
