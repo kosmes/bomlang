@@ -6,7 +6,6 @@
 #include "compiler.h"
 #include "runtime.h"
 #include "vm.h"
-#include "unicode.h"
 
 static u16char buffer[2048];
 
@@ -143,6 +142,10 @@ int main(void) {
         }
 
         node_t *root_node = do_parse(tokens);
+
+        if (root_node == NULL) {
+            continue;
+        }
 
         script_t *script = compile(root_node);
 #if DEBUG_MODE
