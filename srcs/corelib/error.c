@@ -2,7 +2,7 @@
 // Created by jiney on 2019-03-17.
 //
 
-#include "errno.h"
+#include "error.h"
 
 const wchar_t *errstr[] = {
         L"구문 오류.",
