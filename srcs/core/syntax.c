@@ -37,6 +37,15 @@ static void advance() {
     }
 }
 
+static u16char peek() {
+    size_t peek_pos = this.pos + 1;
+    if (peek_pos > this.text_len) {
+        return WNULL;
+    } else {
+        return this.text[peek_pos];
+    }
+}
+
 static token_t get_number() {
     wchar_t buf[16];
     char offset = 0;
