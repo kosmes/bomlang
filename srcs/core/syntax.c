@@ -80,7 +80,7 @@ token_t *get_tokens(wchar_t *text) {
     this.pos = 0;
     this.ch = this.text[this.pos];
 
-    this.line = 0;
+    this.line = 1;
 
     token_t *tokens = NULL;
 
@@ -109,6 +109,8 @@ token_t *get_tokens(wchar_t *text) {
         CHECK1('/', TokenSlash);
         CHECK1('%', TokenModulus);
     }
+
+    buf_push(tokens, create_token(TokenEndOfFile, this.line));
 
     return tokens;
 }
