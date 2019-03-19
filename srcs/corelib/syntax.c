@@ -14,10 +14,10 @@
 typedef struct syntax syntax_t;
 
 struct syntax {
-    wchar_t *text;
+    u16char *text;
     size_t text_len;
 
-    wchar_t ch;
+    u16char ch;
     size_t pos;
 
     unsigned int line;
@@ -57,11 +57,11 @@ static token_t get_number() {
         }
 
         token = create_token(TokenFPConstant, this.line);
-        token.f64 = (double) wcstod(buf, WNULL);
+        token.f64 = (double) wcstod(buf, NULL);
 
     } else {
         token = create_token(TokenIntegerConstant, this.line);
-        token.i32 = (int) wcstol(buf, WNULL, 10);
+        token.i32 = (int) wcstol(buf, NULL, 10);
     }
 
     return token;

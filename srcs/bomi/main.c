@@ -6,20 +6,21 @@
 #include "compiler.h"
 #include "runtime.h"
 #include "vm.h"
+#include "unicode.h"
 
-static wchar_t buffer[2048];
+static u16char buffer[2048];
 
 /* Fake readline function */
-wchar_t *readline(wchar_t *prompt) {
+u16char *readline(u16char *prompt) {
     fputws(prompt, stdout);
     fgetws(buffer, 2048, stdin);
-    wchar_t* cpy = malloc((wcslen(buffer) + 1) * sizeof(wchar_t));
+    u16char* cpy = malloc((wcslen(buffer) + 1) * sizeof(u16char));
     wcscpy(cpy, buffer);
     cpy[wcslen(cpy)-1] = '\0';
     return cpy;
 }
 
-void add_history(char* unused) {}
+void add_history(u16char* unused) {}
 
 void print_node(node_t *node) {
     wprintf(L"노드: %d", node->type);
@@ -45,7 +46,7 @@ void print_node(node_t *node) {
 #define fetch() script->text[offset++]
 
 void print_type(TYPE_CODES code) {
-    const wchar_t *str[] = {
+    const u16char *str[] = {
             L"none",
             L"integer",
             L"double"
@@ -131,7 +132,7 @@ int main(void) {
     wprintf(L"종료하려면 Ctrl+C를 누르거나 '종료'를 입력하세요.\n");
 
     while (true) {
-        wchar_t *input = readline(L"bom> ");
+        u16char *input = readline(L"bom> ");
         if(wcscmp(input, L"종료") == 0) {
             break;
         }

@@ -40,7 +40,7 @@ struct token {
 
     /*  @brief  토큰의 값 */
     union {
-        char i8;
+        u16char u16;
         int i32;
         double f64;
     };
