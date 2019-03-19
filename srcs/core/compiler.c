@@ -7,62 +7,54 @@
 #include "error.h"
 #include "table.h"
 
-#define COMBINE_BUFFER(src, dest) for (size_t i = 0; i < buf_len(dest); i++) { buf_push(src, dest[i]); }
+#define COMBINE_BUFFER(src, dest) for (size_t i = 0; i < buf_len(dest); i++) { buf_push(src, dest[i]); }; \
+    buf_free(dest); dest = NULL;
+
+#define CODE_BUFFER unsigned char *
+#define VISIT_PREPARE unsigned char *codes = NULL;
+#define VISIT_RETURN return codes;
 
 static script_t *root_script;
 static table_t *scope_table;
 static size_t offset = 0;
 
-static visit_result_t visit(node_t *node);
+static unsigned char *visit(node_t *node);
 
 static TYPE_IDS check_casting(script_t *target_script, TYPE_IDS origin_type,
                                 TYPE_IDS to_type, bool force);
 
-static visit_result_t visit_integer_constant(node_t *node) {
-    visit_result_t result;
-    result.script = malloc(sizeof(script_t));
-    result.type_id = TYPE_INT;
+static CODE_BUFFER visit_integer_constant(node_t *node) {
+    VISIT_PREPARE;
 
-    init_script(result.script);
-
-    buf_push(result.script->text, OP_CONST);
-    buf_push(result.script->text, TYPE_INT);
+    buf_push(codes, OP_CONST);
 
     converter_t cvt;
     cvt.asSize = add_int_and_return_addr(root_script, node->token.i32);
 
     for (int i = 0; i < 8; i++) {
-        buf_push(result.script->text, cvt.asBytes[i]);
+        buf_push(codes, cvt.asBytes[i]);
     }
 
-    return result;
+    VISIT_RETURN;
 }
 
-static visit_result_t visit_fp_constant(node_t *node) {
-    visit_result_t result;
-    result.script = malloc(sizeof(script_t));
-    result.type_id = TYPE_DOUBLE;
+static CODE_BUFFER visit_fp_constant(node_t *node) {
+    VISIT_PREPARE;
 
-    init_script(result.script);
-
-    buf_push(result.script->text, OP_CONST);
-    buf_push(result.script->text, TYPE_DOUBLE);
+    buf_push(codes, OP_CONST);
 
     converter_t cvt;
     cvt.asSize = add_double_and_return_addr(root_script, node->token.f64);
 
     for (int i = 0; i < 8; i++) {
-        buf_push(result.script->text, cvt.asBytes[i]);
+        buf_push(codes, cvt.asBytes[i]);
     }
 
-    return result;
+    VISIT_RETURN;
 }
 
-static visit_result_t visit_bin_op(node_t *node) {
-    visit_result_t result;
-    result.script = malloc(sizeof(script_t));
-
-    init_script(result.script);
+static CODE_BUFFER visit_bin_op(node_t *node) {
+    VISIT_PREPARE;
 
     node_t *lhs = node->child[0];
     node_t *rhs = node->child[1];
@@ -71,84 +63,57 @@ static visit_result_t visit_bin_op(node_t *node) {
         error_line(ERR_NO_EXPR, node->token.line);
     }
 
-    visit_result_t lhs_result = visit(lhs);
-    visit_result_t rhs_result = visit(rhs);
+    unsigned char *lhs_codes = visit(lhs);
+    unsigned char *rhs_codes = visit(rhs);
 
-    result.type_id = check_casting(lhs_result.script, lhs_result.type_id, rhs_result.type_id, false);
-    result.type_id = check_casting(rhs_result.script, rhs_result.type_id, lhs_result.type_id, false);
-
-    size_t len = buf_len(lhs_result.script->text);
-    for (size_t i = 0; i < len; i++) {
-        buf_push(result.script->text, lhs_result.script->text[i]);
-    }
-    final_script(lhs_result.script);
-
-    len = buf_len(rhs_result.script->text);
-    for (size_t i = 0; i < len; i++) {
-        buf_push(result.script->text, rhs_result.script->text[i]);
-    }
-    final_script(rhs_result.script);
+    COMBINE_BUFFER(codes, lhs_codes);
+    COMBINE_BUFFER(codes, rhs_codes);
 
     switch (node->token.type) {
         case TokenPlus:
-            buf_push(result.script->text, OP_ADD);
-            buf_push(result.script->text, result.type_id);
+            buf_push(codes, OP_ADD);
             break;
 
         case TokenMinus:
-            buf_push(result.script->text, OP_SUB);
-            buf_push(result.script->text, result.type_id);
+            buf_push(codes, OP_SUB);
             break;
 
         case TokenAbsterisk:
-            buf_push(result.script->text, OP_MUL);
-            buf_push(result.script->text, result.type_id);
+            buf_push(codes, OP_MUL);
             break;
 
         case TokenSlash:
-            buf_push(result.script->text, OP_DIV);
-            buf_push(result.script->text, result.type_id);
+            buf_push(codes, OP_DIV);
             break;
     }
 
-    return result;
+    VISIT_RETURN;
 }
 
-static visit_result_t visit_unary_op(node_t *node) {
-    visit_result_t result;
-    result.script = malloc(sizeof(script_t));
-    init_script(result.script);
+static CODE_BUFFER visit_unary_op(node_t *node) {
+    VISIT_PREPARE;
 
-    visit_result_t visit_result = visit(node->child[0]);
-    result.type_id = visit_result.type_id;
+    CODE_BUFFER visit_codes = visit(node->child[0]);
 
-    COMBINE_BUFFER(result.script->text, visit_result.script->text);
-    final_script(visit_result.script);
+    COMBINE_BUFFER(codes, visit_codes);
 
     if (node->token.type == TokenMinus) {
-        buf_push(result.script->text, OP_INVERT);
-        buf_push(result.script->text, result.type_id);
+        buf_push(codes, OP_INVERT);
     }
 
-    return result;
+    VISIT_RETURN;
 }
 
-static visit_result_t visit_assign_op(node_t *node) {
-    visit_result_t result;
-    result.script = malloc(sizeof(script_t));
-
-    init_script(result.script);
+static CODE_BUFFER visit_assign_op(node_t *node) {
+    VISIT_PREPARE;
 
     node_t *lhs = node->child[0];
     node_t *rhs = node->child[1];
 
     if (lhs == NULL || rhs == NULL) {
         error_line(ERR_NO_EXPR, node->token.line);
-        return result;
+        return NULL;
     }
-
-    visit_result_t rhs_result = visit(rhs);
-    result.type_id = rhs_result.type_id;
 
     table_pair_t *pair = table_find_by_key(scope_table, lhs->token.str);
 
@@ -157,51 +122,47 @@ static visit_result_t visit_assign_op(node_t *node) {
         *(slot_ptr) = offset++;
         if ((pair = table_insert_data(scope_table, lhs->token.str, slot_ptr)) == NULL) {
             error(ERR_ERROR);
-            return result;
+            return NULL;
         }
     }
 
     size_t slot = *((size_t *) pair->data);
 
-    COMBINE_BUFFER(result.script->text, rhs_result.script->text);
+    CODE_BUFFER rhs_codes = visit(rhs);
 
-    buf_push(result.script->text, OP_STORE);
-    buf_push(result.script->text, rhs_result.type_id);
+    COMBINE_BUFFER(codes, rhs_codes);
+
+    buf_push(codes, OP_STORE);
 
     converter_t cvt;
     cvt.asSize = slot;
 
     for (int i = 0; i < 8; i++) {
-        buf_push(result.script->text, cvt.asBytes[i]);
+        buf_push(codes, cvt.asBytes[i]);
     }
 
-    buf_push(result.script->text, OP_LOAD);
-    buf_push(result.script->text, rhs_result.type_id);
+    buf_push(codes, OP_LOAD);
 
     for (int i = 0; i < 8; i++) {
-        buf_push(result.script->text, cvt.asBytes[i]);
+        buf_push(codes, cvt.asBytes[i]);
     }
 
-    return result;
+    VISIT_RETURN;
 }
 
-static visit_result_t visit_compound(node_t *node) {
-    visit_result_t result;
-    result.script = malloc(sizeof(script_t));
-
-    init_script(result.script);
+static CODE_BUFFER visit_compound(node_t *node) {
+    VISIT_PREPARE;
 
     size_t len = buf_len(node->child);
     for (int i = 0; i < len; i++) {
-        visit_result_t visit_result = visit(node->child[i]);
-        COMBINE_BUFFER(result.script->text, visit_result.script->text);
-        final_script(visit_result.script);
+        CODE_BUFFER visit_codes = visit(node->child[i]);
+        COMBINE_BUFFER(codes, visit_codes);
     }
 
-    return result;
+    VISIT_RETURN;
 }
 
-static visit_result_t visit(node_t *node) {
+static CODE_BUFFER visit(node_t *node) {
     switch (node->type) {
         case NodeIntegerConstant:
             return visit_integer_constant(node);
@@ -222,13 +183,7 @@ static visit_result_t visit(node_t *node) {
             return visit_compound(node);
 
         default: {
-            visit_result_t result;
-
-            result.script = malloc(sizeof(script_t));
-            result.type_id = TYPE_NONE;
-            init_script(result.script);
-
-            return result;
+            return NULL;
         }
     }
 }
@@ -242,16 +197,11 @@ script_t *compile(node_t *root_node) {
         init_table(scope_table);
     }
 
-    visit_result_t result = visit(root_node);
+    CODE_BUFFER result = visit(root_node);
 
-    size_t len = buf_len(result.script->text);
-    for (size_t i = 0; i < len; i++) {
-        buf_push(root_script->text, result.script->text[i]);
-    }
-    final_script(result.script);
+    COMBINE_BUFFER(root_script->text, result);
 
     buf_push(root_script->text, OP_DBG_PRNIT);
-    buf_push(root_script->text, result.type_id);
 
     buf_push(root_script->text, OP_HALT);
 
