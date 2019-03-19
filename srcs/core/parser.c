@@ -26,6 +26,16 @@ static node_t *level4();
 
 static node_t *expr();
 
+static node_t *compound();
+
+static node_t **statement_list();
+
+static node_t *statement();
+
+static node_t *assign();
+
+static node_t *variable();
+
 DLL_EXPORT node_t *do_parse(token_t *tokens) {
     if (tokens != NULL) {
 
@@ -39,7 +49,7 @@ DLL_EXPORT node_t *do_parse(token_t *tokens) {
         return NULL;
     }
 
-    node_t *root_node = expr();
+    node_t *root_node = compound();
     if (this.token.type != TokenEndOfFile) {
         error(ERR_SYNTAX, this.token.line);
         this.err_count++;
@@ -146,3 +156,63 @@ static node_t *expr() {
     return level4();
 }
 
+static node_t *compound() {
+    token_t tkn = this.token;
+    return create_node(NodeCompound, tkn, statement_list());
+}
+
+static node_t **statement_list() {
+    node_t **result = NULL;
+    buf_push(result, statement());
+
+    while (this.token.type == TokenSemicolon) {
+        eat(TokenSemicolon, ERR_SEMI_EXPECTED);
+        buf_push(result, statement());
+    }
+
+    if (this.token.type == TokenIdentifier) {
+        error(ERR_SEMI_EXPECTED, this.token.line);
+        this.err_count++;
+    }
+
+    return result;
+}
+
+static node_t *statement() {
+    size_t offset = this.pos;
+    token_t last_token;
+    while (buf_len(this.tokens) > offset) {
+        offset++;
+        if (this.tokens[offset].type == TokenSemicolon) {
+            break;
+        }
+
+        if (this.tokens[offset].type == TokenEndOfFile) {
+            error(ERR_INVALID_EOF, this.token.line);
+            this.err_count++;
+        }
+
+        last_token = this.tokens[offset];
+    }
+
+    if(this.token.type == TokenIdentifier) {
+        return assign();
+    } else {
+        return create_node(NodeEmpty, this.token, NULL);
+    }
+}
+
+static node_t *assign() {
+    node_t **child = NULL;
+    buf_push(child, variable());
+    token_t tkn = this.token;
+    eat(TokenAssign, ERR_SYNTAX);
+    buf_push(child, expr());
+    return create_node(NodeAssignOp, tkn, child);
+}
+
+static node_t *variable() {
+    node_t *node = create_node(NodeVar, this.token, NULL);
+    eat(TokenIdentifier, ERR_SYNTAX);
+    return node;
+}
