@@ -15,6 +15,45 @@ static visit_result_t visit(node_t *node);
 static TYPE_CODES check_casting(script_t *target_script, TYPE_CODES origin_type,
                                 TYPE_CODES to_type, bool force);
 
+static visit_result_t visit_integer_constant(node_t *node) {
+    visit_result_t result;
+    result.script = malloc(sizeof(script_t));
+    result.type_id = TYPE_INT;
+
+    init_script(result.script);
+
+    buf_push(result.script->text, OP_CONST);
+    buf_push(result.script->text, TYPE_INT);
+
+    converter_t cvt;
+    cvt.asSize = add_int_and_return_addr(root_script, node->token.i32);
+
+    for (int i = 0; i < 8; i++) {
+        buf_push(result.script->text, cvt.asBytes[i]);
+    }
+
+    return result;
+}
+
+static visit_result_t visit_fp_constant(node_t *node) {
+    visit_result_t result;
+    result.script = malloc(sizeof(script_t));
+    result.type_id = TYPE_DOUBLE;
+
+    init_script(result.script);
+
+    buf_push(result.script->text, OP_CONST);
+    buf_push(result.script->text, TYPE_DOUBLE);
+
+    converter_t cvt;
+    cvt.asSize = add_double_and_return_addr(root_script, node->token.f64);
+
+    for (int i = 0; i < 8; i++) {
+        buf_push(result.script->text, cvt.asBytes[i]);
+    }
+
+    return result;
+}
 
 static visit_result_t visit_bin_op(node_t *node) {
     visit_result_t result;
@@ -86,46 +125,6 @@ static visit_result_t visit_unary_op(node_t *node) {
     if (node->token.type == TokenMinus) {
         buf_push(result.script->text, OP_INVERT);
         buf_push(result.script->text, result.type_id);
-    }
-
-    return result;
-}
-
-static visit_result_t visit_integer_constant(node_t *node) {
-    visit_result_t result;
-    result.script = malloc(sizeof(script_t));
-    result.type_id = TYPE_INT;
-
-    init_script(result.script);
-
-    buf_push(result.script->text, OP_CONST);
-    buf_push(result.script->text, TYPE_INT);
-
-    converter_t cvt;
-    cvt.asSize = add_int_and_return_addr(root_script, node->token.i32);
-
-    for (int i = 0; i < 8; i++) {
-        buf_push(result.script->text, cvt.asBytes[i]);
-    }
-
-    return result;
-}
-
-static visit_result_t visit_fp_constant(node_t *node) {
-    visit_result_t result;
-    result.script = malloc(sizeof(script_t));
-    result.type_id = TYPE_DOUBLE;
-
-    init_script(result.script);
-
-    buf_push(result.script->text, OP_CONST);
-    buf_push(result.script->text, TYPE_DOUBLE);
-
-    converter_t cvt;
-    cvt.asSize = add_double_and_return_addr(root_script, node->token.f64);
-
-    for (int i = 0; i < 8; i++) {
-        buf_push(result.script->text, cvt.asBytes[i]);
     }
 
     return result;
