@@ -12,6 +12,8 @@ struct parser {
     token_t *tokens;
     token_t token;
     size_t pos;
+
+    unsigned short err_count;
 };
 
 static parser_t this;
@@ -27,6 +29,8 @@ static node_t *expr();
 DLL_EXPORT node_t *do_parse(token_t *tokens) {
     if (tokens != NULL) {
 
+        this.err_count = 0;
+
         this.tokens = tokens;
         this.pos = 0;
         this.token = this.tokens[this.pos];
@@ -35,17 +39,28 @@ DLL_EXPORT node_t *do_parse(token_t *tokens) {
         return NULL;
     }
 
-    return expr();
+    node_t *root_node = expr();
+    if (this.err_count != 0) {
+        destroy_node(root_node);
+        wprintf(L"오류 '%d'개가 검출되었습니다.\n", this.err_count);
+        return NULL;
+    } else {
+        return root_node;
+    }
 }
 
 static void eat(TOKEN_TYPES type, enum ERROR_CODE errcode) {
     if (this.token.type != type) {
         error(errcode, this.token.line);
+
         this.token.type = TokenNone;
+        this.err_count++;
     } else {
         this.pos += 1;
         if (this.pos > buf_len(this.tokens)) {
             error(ERR_SYNTAX, this.token.line);
+
+            this.err_count++;
         } else {
             this.token = this.tokens[this.pos];
         }
