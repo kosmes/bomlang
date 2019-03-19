@@ -13,6 +13,7 @@ const u16char *errstr[] = {
         L"비어있는 스택에 데이터를 가져오려고 시도했습니다.",
         L"0으로 나누었습니다.",
         L"파일 끝이 잘못되었습니다.",
+        L"잘못된 색인을 참조하였습니다."
 };
 
 void error(enum ERROR_CODE err, unsigned int line) {
