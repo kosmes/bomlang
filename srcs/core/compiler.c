@@ -175,6 +175,13 @@ static visit_result_t visit_assign_op(node_t *node) {
         buf_push(result.script->text, cvt.asBytes[i]);
     }
 
+    buf_push(result.script->text, OP_LOAD);
+    buf_push(result.script->text, rhs_result.type_id);
+
+    for (int i = 0; i < 8; i++) {
+        buf_push(result.script->text, cvt.asBytes[i]);
+    }
+
     return result;
 }
 
