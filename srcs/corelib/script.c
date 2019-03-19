@@ -93,7 +93,7 @@ const wchar_t *get_string_from_addr(script_t *script, size_t addr) {
     cvt.asDouble = 0;
 
     for (int i = 0; i < 2; i++) {
-        cvt.asBytes [i] = script->data[offset++];
+        cvt.asBytes[i] = script->data[offset++];
     }
 
     len = cvt.asShort;

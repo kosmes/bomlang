@@ -12,8 +12,8 @@ static script_t *root_script;
 
 static visit_result_t visit(node_t *node);
 
-static TYPE_CODES check_casting(script_t *target_script, TYPE_CODES origin_type, 
-                                 TYPE_CODES to_type, bool force);
+static TYPE_CODES check_casting(script_t *target_script, TYPE_CODES origin_type,
+                                TYPE_CODES to_type, bool force);
 
 
 static visit_result_t visit_bin_op(node_t *node) {
@@ -47,7 +47,7 @@ static visit_result_t visit_bin_op(node_t *node) {
     }
     final_script(rhs_result.script);
 
-    switch(node->token.type) {
+    switch (node->token.type) {
         case TokenPlus:
             buf_push(result.script->text, OP_ADD);
             buf_push(result.script->text, result.type_id);
@@ -133,26 +133,27 @@ static visit_result_t visit_fp_constant(node_t *node) {
 
 static visit_result_t visit(node_t *node) {
     switch (node->type) {
-    case NodeIntegerConstant:
-        return visit_integer_constant(node);
+        case NodeIntegerConstant:
+            return visit_integer_constant(node);
 
-    case NodeFPConstant:
-        return visit_fp_constant(node);
+        case NodeFPConstant:
+            return visit_fp_constant(node);
 
-    case NodeBinOp:
-        return visit_bin_op(node);
+        case NodeBinOp:
+            return visit_bin_op(node);
 
-    case NodeUnaryOp:
-        return visit_unary_op(node);
+        case NodeUnaryOp:
+            return visit_unary_op(node);
 
-    default:{
-        visit_result_t result;
+        default: {
+            visit_result_t result;
 
-        result.script = NULL;
-        result.type_id = TYPE_NONE;
+            result.script = NULL;
+            result.type_id = TYPE_NONE;
 
-        return result;
-    } }
+            return result;
+        }
+    }
 }
 
 script_t *compile(node_t *root_node) {
@@ -175,8 +176,8 @@ script_t *compile(node_t *root_node) {
     return root_script;
 }
 
-static TYPE_CODES check_casting(script_t *target_script, TYPE_CODES origin_type, 
-                                 TYPE_CODES to_type, bool force) {
+static TYPE_CODES check_casting(script_t *target_script, TYPE_CODES origin_type,
+                                TYPE_CODES to_type, bool force) {
     if (origin_type == TYPE_NONE || to_type == TYPE_NONE) {
         return TYPE_NONE;
     }

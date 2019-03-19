@@ -42,7 +42,7 @@ void set_script(vm_t *vm, script_t *script) {
     { error(ERR_STACK_OVERFLOW, 0); return; }
 
 #define CHECK_STACK_UNDERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] - offset < 0) \
-    { error(ERR_STACK_UNDERFLOW, 0); return; }
+    { error(ERR_STACK_UNDERFLOW, 0); return 0; }
 
 static void push_int(vm_t *vm, int data) {
     CHECK_STACK_OVERFLOW(vm, 4);
@@ -50,7 +50,7 @@ static void push_int(vm_t *vm, int data) {
     converter_t cvt;
     cvt.asInteger = data;
 
-    for(int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
         vm->stack[vm->reg[REG_STACK_POINTER]++] = cvt.asBytes[i];
     }
 }
@@ -61,7 +61,7 @@ static void push_double(vm_t *vm, double data) {
     converter_t cvt;
     cvt.asDouble = data;
 
-    for(int i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++) {
         vm->stack[vm->reg[REG_STACK_POINTER]++] = cvt.asBytes[i];
     }
 }
@@ -73,7 +73,7 @@ static int pop_int(vm_t *vm) {
     converter_t cvt;
     cvt.asDouble = 0;
 
-    for(int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
         cvt.asBytes[3 - i] = vm->stack[--vm->reg[REG_STACK_POINTER]];
     }
 
@@ -86,7 +86,7 @@ static double pop_double(vm_t *vm) {
     short stack_point = vm->reg[REG_STACK_POINTER];
     converter_t cvt;
 
-    for(int i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++) {
         cvt.asBytes[7 - i] = vm->stack[--vm->reg[REG_STACK_POINTER]];
     }
 
@@ -119,12 +119,14 @@ static void op_add(vm_t *vm) {
             int rhs = pop_int(vm);
             int lhs = pop_int(vm);
             push_int(vm, lhs + rhs);
-        } break;
+        }
+            break;
         case TYPE_DOUBLE: {
             double rhs = pop_double(vm);
             double lhs = pop_double(vm);
             push_double(vm, lhs + rhs);
-        } break;
+        }
+            break;
         default:
             break;
     }
@@ -138,12 +140,14 @@ static void op_sub(vm_t *vm) {
             int rhs = pop_int(vm);
             int lhs = pop_int(vm);
             push_int(vm, lhs - rhs);
-        } break;
+        }
+            break;
         case TYPE_DOUBLE: {
             double rhs = pop_double(vm);
             double lhs = pop_double(vm);
             push_double(vm, lhs - rhs);
-        } break;
+        }
+            break;
         default:
             break;
     }
@@ -157,12 +161,14 @@ static void op_mul(vm_t *vm) {
             int rhs = pop_int(vm);
             int lhs = pop_int(vm);
             push_int(vm, lhs * rhs);
-        } break;
+        }
+            break;
         case TYPE_DOUBLE: {
             double rhs = pop_double(vm);
             double lhs = pop_double(vm);
             push_double(vm, lhs * rhs);
-        } break;
+        }
+            break;
         default:
             break;
     }
@@ -180,7 +186,8 @@ static void op_div(vm_t *vm) {
             }
 
             push_int(vm, lhs / rhs);
-        } break;
+        }
+            break;
         case TYPE_DOUBLE: {
             double rhs = pop_double(vm);
             double lhs = pop_double(vm);
@@ -190,7 +197,8 @@ static void op_div(vm_t *vm) {
             }
 
             push_double(vm, lhs / rhs);
-        } break;
+        }
+            break;
         default:
             break;
     }
@@ -255,7 +263,7 @@ void run_vm(vm_t *vm) {
         }
 
         char opcode = NEXT_CODE(vm);
-        switch(opcode) {
+        switch (opcode) {
             case OP_HALT:
                 wprintf(L"프로그램 종료.\n");
                 running = false;
@@ -297,5 +305,5 @@ void run_vm(vm_t *vm) {
                 running = false;
                 break;
         }
-    } while(running);
+    } while (running);
 }

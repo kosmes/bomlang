@@ -73,7 +73,7 @@ static void skip_whitespace() {
     }
 }
 
-token_t* get_tokens(wchar_t *text) {
+token_t *get_tokens(wchar_t *text) {
     this.text = text;
     this.text_len = wcslen(text);
 
