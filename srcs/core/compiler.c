@@ -15,8 +15,8 @@ static size_t offset = 0;
 
 static visit_result_t visit(node_t *node);
 
-static TYPE_CODES check_casting(script_t *target_script, TYPE_CODES origin_type,
-                                TYPE_CODES to_type, bool force);
+static TYPE_IDS check_casting(script_t *target_script, TYPE_IDS origin_type,
+                                TYPE_IDS to_type, bool force);
 
 static visit_result_t visit_integer_constant(node_t *node) {
     visit_result_t result;
@@ -258,8 +258,8 @@ script_t *compile(node_t *root_node) {
     return root_script;
 }
 
-static TYPE_CODES check_casting(script_t *target_script, TYPE_CODES origin_type,
-                                TYPE_CODES to_type, bool force) {
+static TYPE_IDS check_casting(script_t *target_script, TYPE_IDS origin_type,
+                                TYPE_IDS to_type, bool force) {
     if (origin_type == TYPE_NONE || to_type == TYPE_NONE) {
         return TYPE_NONE;
     }

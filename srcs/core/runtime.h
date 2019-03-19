@@ -5,10 +5,10 @@
 #ifndef BOM_OPCODE_H
 #define BOM_OPCODE_H
 
-typedef enum TYPE_CODES TYPE_CODES;
+typedef enum TYPE_IDS TYPE_IDS;
 typedef enum OP_CODES OP_CODES;
 
-enum TYPE_CODES {
+enum TYPE_IDS {
     TYPE_NONE,
     TYPE_INT,
     TYPE_DOUBLE,
