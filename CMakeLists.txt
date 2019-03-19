@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(bom VERSION 0.0.1)
+project(bom)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
