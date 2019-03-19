@@ -150,12 +150,12 @@ static visit_result_t visit_assign_op(node_t *node) {
     visit_result_t rhs_result = visit(rhs);
     result.type_id = rhs_result.type_id;
 
-    table_pair_t *pair = find_by_key(scope_table, lhs->token.str);
+    table_pair_t *pair = table_find_by_key(scope_table, lhs->token.str);
 
     if (pair == NULL) {
         size_t *slot_ptr = malloc(sizeof(size_t));
         *(slot_ptr) = offset++;
-        if ((pair = insert_value(scope_table, lhs->token.str, slot_ptr)) == NULL) {
+        if ((pair = table_insert_data(scope_table, lhs->token.str, slot_ptr)) == NULL) {
             error(ERR_ERROR);
             return result;
         }

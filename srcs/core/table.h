@@ -26,8 +26,8 @@ DLL_EXPORT void init_table(table_t *table);
 
 DLL_EXPORT void final_table(table_t *table);
 
-DLL_EXPORT table_pair_t *find_by_key(table_t *table, const u16char *key);
+DLL_EXPORT table_pair_t *table_find_by_key(table_t *table, const u16char *key);
 
-DLL_EXPORT table_pair_t *insert_value(table_t *table, const u16char *key, void *data);
+DLL_EXPORT table_pair_t *table_insert_data(table_t *table, const u16char *key, void *data);
 
 #endif //BOM_TABLE_H

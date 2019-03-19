@@ -45,7 +45,7 @@ void final_table(table_t *table) {
     free(table->pairs);
 }
 
-table_pair_t *find_by_key(table_t *table, const u16char *key) {
+table_pair_t *table_find_by_key(table_t *table, const u16char *key) {
     if (table->cap <= 0) {
         error(ERR_INVALID_INDEX);
         return NULL;
@@ -55,7 +55,7 @@ table_pair_t *find_by_key(table_t *table, const u16char *key) {
     return table->pairs[addr];
 }
 
-table_pair_t *insert_value(table_t *table, const u16char *key, void *data) {
+table_pair_t *table_insert_data(table_t *table, const u16char *key, void *data) {
     if (table->cap <= 0) {
         error(ERR_INVALID_INDEX);
         return false;
