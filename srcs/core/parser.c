@@ -38,9 +38,9 @@ DLL_EXPORT node_t *do_parse(token_t *tokens) {
     return expr();
 }
 
-static void eat(TOKEN_TYPES type) {
+static void eat(TOKEN_TYPES type, enum ERROR_CODE errcode) {
     if (this.token.type != type) {
-        error(ERR_SYNTAX, this.token.line);
+        error(errcode, this.token.line);
         this.token.type = TokenNone;
     } else {
         this.pos += 1;
@@ -56,23 +56,23 @@ static node_t *level1() {
     node_t **child = NULL;
     token_t tkn = this.token;
     if (this.token.type == TokenPlus) {
-        eat(TokenPlus);
+        eat(TokenPlus, ERR_SYNTAX);
         buf_push(child, level1());
         return create_node(NodeUnaryOp, tkn, child);
     } else if (this.token.type == TokenMinus) {
-        eat(TokenMinus);
+        eat(TokenMinus, ERR_SYNTAX);
         buf_push(child, level1());
         return create_node(NodeUnaryOp, tkn, child);
     } else if (this.token.type == TokenIntegerConstant) {
-        eat(TokenIntegerConstant);
+        eat(TokenIntegerConstant, ERR_SYNTAX);
         return create_node(NodeIntegerConstant, tkn, NULL);
     } else if (this.token.type == TokenFPConstant) {
-        eat(TokenFPConstant);
+        eat(TokenFPConstant, ERR_SYNTAX);
         return create_node(NodeFPConstant, tkn, NULL);
     } else if (this.token.type == TokenLeftParen) {
-        eat(TokenLeftParen);
+        eat(TokenLeftParen, ERR_SYNTAX);
         node_t *node = expr();
-        eat(TokenRightParen);
+        eat(TokenRightParen, ERR_UNBAL_PARENS);
         return node;
     }
 
@@ -86,9 +86,9 @@ static node_t *level3() {
            this.token.type == TokenSlash) {
         token_t tkn = this.token;
         if (this.token.type == TokenAbsterisk) {
-            eat(TokenAbsterisk);
+            eat(TokenAbsterisk, ERR_SYNTAX);
         } else if (this.token.type == TokenSlash) {
-            eat(TokenSlash);
+            eat(TokenSlash, ERR_SYNTAX);
         }
 
         node_t **child = NULL;
@@ -108,9 +108,9 @@ static node_t *level4() {
            this.token.type == TokenMinus) {
         token_t tkn = this.token;
         if (this.token.type == TokenPlus) {
-            eat(TokenPlus);
+            eat(TokenPlus, ERR_SYNTAX);
         } else if (this.token.type == TokenMinus) {
-            eat(TokenMinus);
+            eat(TokenMinus, ERR_SYNTAX);
         }
 
         node_t **child = NULL;
