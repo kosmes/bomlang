@@ -37,15 +37,8 @@ struct vm {
         script_t script;
     };
 
-    union  {
-        unsigned char full_mem[MEMORY_SIZE];
-
-        struct {
-            unsigned short reg[16];
-            unsigned char stack[STACK_SIZE];
-            unsigned short mem[0];
-        };
-    };
+    unsigned short reg[16];
+    unsigned char stack[STACK_SIZE];
 };
 
 DLL_EXPORT void init_vm(vm_t *vm);
