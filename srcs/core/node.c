@@ -5,7 +5,7 @@
 #include "node.h"
 #include "buf.h"
 
-DLL_EXPORT node_t *create_node(node_type_t type, token_t token, node_t **child) {
+DLL_EXPORT node_t *create_node(NODE_TYPES type, token_t token, node_t **child) {
     node_t *node = malloc(sizeof(node_t));
 
     node->type = type;

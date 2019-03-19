@@ -7,19 +7,19 @@
 #include "runtime.h"
 #include "vm.h"
 
-static wchar_t buffer[2048];
+static u16char buffer[2048];
 
 /* Fake readline function */
-wchar_t *readline(wchar_t *prompt) {
+u16char *readline(u16char *prompt) {
     fputws(prompt, stdout);
     fgetws(buffer, 2048, stdin);
-    wchar_t* cpy = malloc((wcslen(buffer) + 1) * sizeof(wchar_t));
+    u16char* cpy = malloc((wcslen(buffer) + 1) * sizeof(u16char));
     wcscpy(cpy, buffer);
     cpy[wcslen(cpy)-1] = '\0';
     return cpy;
 }
 
-void add_history(char* unused) {}
+void add_history(u16char* unused) {}
 
 void print_node(node_t *node) {
     wprintf(L"노드: %d", node->type);
@@ -44,8 +44,8 @@ void print_node(node_t *node) {
 
 #define fetch() script->text[offset++]
 
-void print_type(type_code_t code) {
-    const wchar_t *str[] = {
+void print_type(TYPE_CODES code) {
+    const u16char *str[] = {
             L"none",
             L"integer",
             L"double"
@@ -54,7 +54,7 @@ void print_type(type_code_t code) {
     wprintf(L"\ttype: %7ls ", str[(char) code]);
 }
 
-void print_const(script_t *script, type_code_t code, size_t *offset) {
+void print_const(script_t *script, TYPE_CODES code, size_t *offset) {
     converter_t cvt;
     cvt.asDouble = 0;
 
@@ -83,7 +83,7 @@ void print_script(script_t *script) {
     while(offset < len) {
         switch (fetch()) {
             case OP_CONST: {
-                type_code_t type = fetch();
+                TYPE_CODES type = fetch();
                 wprintf(L"const ");
                 print_type(type);
                 print_const(script, type, &offset);
@@ -131,7 +131,7 @@ int main(void) {
     wprintf(L"종료하려면 Ctrl+C를 누르거나 '종료'를 입력하세요.\n");
 
     while (true) {
-        wchar_t *input = readline(L"bom> ");
+        u16char *input = readline(L"bom> ");
         if(wcscmp(input, L"종료") == 0) {
             break;
         }
@@ -142,6 +142,10 @@ int main(void) {
         }
 
         node_t *root_node = do_parse(tokens);
+
+        if (root_node == NULL) {
+            continue;
+        }
 
         script_t *script = compile(root_node);
 #if DEBUG_MODE

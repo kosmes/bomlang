@@ -9,7 +9,7 @@ void *buf__grow(const void *buf, size_t newlen, size_t elemsize) {
     assert(newlen <= newcap);
     size_t newsize = offsetof(BufHdr, buf) + newcap * elemsize;
     BufHdr *newhdr;
-    if(buf) {
+    if (buf) {
         newhdr = realloc(buf__hdr(buf), newsize);
     } else {
         newhdr = malloc(newsize);

@@ -7,10 +7,10 @@
 
 #include "common.h"
 
-typedef enum token_type token_type_t;
+typedef enum TOKEN_TYPES TOKEN_TYPES;
 typedef struct token token_t;
 
-enum token_type {
+enum TOKEN_TYPES {
     TokenNone,
     TokenComma,
     TokenAssign,
@@ -33,14 +33,14 @@ enum token_type {
  */
 struct token {
     /*  @brief  토큰의 종류 */
-    token_type_t type;
+    TOKEN_TYPES type;
 
     /*  @brief  토큰이 위치하는 줄 */
     unsigned int line;
 
     /*  @brief  토큰의 값 */
     union {
-        char i8;
+        u16char u16;
         int i32;
         double f64;
     };
@@ -54,7 +54,7 @@ struct token {
  * @param line  토큰의 라인
  * @return  초기화된 토큰
  */
-DLL_EXPORT token_t create_token(token_type_t type, unsigned int line);
+DLL_EXPORT token_t create_token(TOKEN_TYPES type, unsigned int line);
 
 /**
  * 토큰을 파괴한다

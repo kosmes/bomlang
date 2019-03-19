@@ -16,6 +16,8 @@
 #include <wctype.h>
 #include <memory.h>
 
+#include "unicode.h"
+
 #define MAX(a, b) (a >= b ? a : b)
 #define MIN(a, b) (a <= b ? a : b)
 
@@ -25,7 +27,7 @@ union converter {
     short asShort;
     int asInteger;
     double asDouble;
-    wchar_t asChar;
+    u16char asChar;
     size_t asSize;
     unsigned char asBytes[8];
 };

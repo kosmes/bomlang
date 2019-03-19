@@ -11,9 +11,9 @@ void init_vm(vm_t *vm) {
         vm->full_mem[i] = 0;
     }
 
-    vm->reg[PROGRAM_CODE] = 0;
-    vm->reg[FRAME_POINTER] = 0;
-    vm->reg[STACK_POINTER] = 0;
+    vm->reg[REG_PROGRAM_CODE] = 0;
+    vm->reg[REG_FRAME_POINTER] = 0;
+    vm->reg[REG_STACK_POINTER] = 0;
 
     vm->data = NULL;
     vm->text = NULL;
@@ -34,13 +34,15 @@ void set_script(vm_t *vm, script_t *script) {
     }
 }
 
-#define NEXT_CODE(vm) ((vm)->text[(vm)->reg[PROGRAM_CODE]++])
+#define NEXT_CODE(vm) ((vm)->text[(vm)->reg[REG_PROGRAM_CODE]++])
+#define THROW_ERROR(vm, errcode) (error(errcode, 0), \
+        (vm)->reg[REG_MACHINE_STATUS] = STATUS_ERROR_THROWN); return;
 
-#define CHECK_STACK_OVERFLOW(vm, offset) if ((vm)->reg[STACK_POINTER] + offset >= STACK_SIZE) \
-    { error(STACK_OVERFLOW, 0); }
+#define CHECK_STACK_OVERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] + offset >= STACK_SIZE) \
+    { error(ERR_STACK_OVERFLOW, 0); return; }
 
-#define CHECK_STACK_UNDERFLOW(vm, offset) if ((vm)->reg[STACK_POINTER] - offset < 0) \
-    { error(STACK_UNDERFLOW, 0); }
+#define CHECK_STACK_UNDERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] - offset < 0) \
+    { error(ERR_STACK_UNDERFLOW, 0); return 0; }
 
 static void push_int(vm_t *vm, int data) {
     CHECK_STACK_OVERFLOW(vm, 4);
@@ -48,8 +50,8 @@ static void push_int(vm_t *vm, int data) {
     converter_t cvt;
     cvt.asInteger = data;
 
-    for(int i = 0; i < 4; i++) {
-        vm->stack[vm->reg[STACK_POINTER]++] = cvt.asBytes[i];
+    for (int i = 0; i < 4; i++) {
+        vm->stack[vm->reg[REG_STACK_POINTER]++] = cvt.asBytes[i];
     }
 }
 
@@ -59,20 +61,20 @@ static void push_double(vm_t *vm, double data) {
     converter_t cvt;
     cvt.asDouble = data;
 
-    for(int i = 0; i < 8; i++) {
-        vm->stack[vm->reg[STACK_POINTER]++] = cvt.asBytes[i];
+    for (int i = 0; i < 8; i++) {
+        vm->stack[vm->reg[REG_STACK_POINTER]++] = cvt.asBytes[i];
     }
 }
 
 static int pop_int(vm_t *vm) {
     CHECK_STACK_UNDERFLOW(vm, 4);
 
-    short stack_point = vm->reg[STACK_POINTER];
+    short stack_point = vm->reg[REG_STACK_POINTER];
     converter_t cvt;
     cvt.asDouble = 0;
 
-    for(int i = 0; i < 4; i++) {
-        cvt.asBytes[3 - i] = vm->stack[--vm->reg[STACK_POINTER]];
+    for (int i = 0; i < 4; i++) {
+        cvt.asBytes[3 - i] = vm->stack[--vm->reg[REG_STACK_POINTER]];
     }
 
     return cvt.asInteger;
@@ -81,18 +83,18 @@ static int pop_int(vm_t *vm) {
 static double pop_double(vm_t *vm) {
     CHECK_STACK_UNDERFLOW(vm, 8);
 
-    short stack_point = vm->reg[STACK_POINTER];
+    short stack_point = vm->reg[REG_STACK_POINTER];
     converter_t cvt;
 
-    for(int i = 0; i < 8; i++) {
-        cvt.asBytes[7 - i] = vm->stack[--vm->reg[STACK_POINTER]];
+    for (int i = 0; i < 8; i++) {
+        cvt.asBytes[7 - i] = vm->stack[--vm->reg[REG_STACK_POINTER]];
     }
 
-    return cvt.asInteger;
+    return cvt.asDouble;
 }
 
 static void op_const(vm_t *vm) {
-    type_code_t code = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES code = (TYPE_CODES) NEXT_CODE(vm);
 
     converter_t cvt;
     cvt.asDouble = 0;
@@ -110,84 +112,101 @@ static void op_const(vm_t *vm) {
 }
 
 static void op_add(vm_t *vm) {
-    type_code_t code = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES code = (TYPE_CODES) NEXT_CODE(vm);
 
     switch (code) {
         case TYPE_INT: {
             int rhs = pop_int(vm);
             int lhs = pop_int(vm);
             push_int(vm, lhs + rhs);
-        } break;
+        }
+            break;
         case TYPE_DOUBLE: {
             double rhs = pop_double(vm);
             double lhs = pop_double(vm);
             push_double(vm, lhs + rhs);
-        } break;
+        }
+            break;
         default:
             break;
     }
 }
 
 static void op_sub(vm_t *vm) {
-    type_code_t code = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES code = (TYPE_CODES) NEXT_CODE(vm);
 
     switch (code) {
         case TYPE_INT: {
             int rhs = pop_int(vm);
             int lhs = pop_int(vm);
             push_int(vm, lhs - rhs);
-        } break;
+        }
+            break;
         case TYPE_DOUBLE: {
             double rhs = pop_double(vm);
             double lhs = pop_double(vm);
             push_double(vm, lhs - rhs);
-        } break;
+        }
+            break;
         default:
             break;
     }
 }
 
 static void op_mul(vm_t *vm) {
-    type_code_t code = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES code = (TYPE_CODES) NEXT_CODE(vm);
 
     switch (code) {
         case TYPE_INT: {
             int rhs = pop_int(vm);
             int lhs = pop_int(vm);
             push_int(vm, lhs * rhs);
-        } break;
+        }
+            break;
         case TYPE_DOUBLE: {
             double rhs = pop_double(vm);
             double lhs = pop_double(vm);
             push_double(vm, lhs * rhs);
-        } break;
+        }
+            break;
         default:
             break;
     }
 }
 
 static void op_div(vm_t *vm) {
-    type_code_t code = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES code = (TYPE_CODES) NEXT_CODE(vm);
 
     switch (code) {
         case TYPE_INT: {
             int rhs = pop_int(vm);
             int lhs = pop_int(vm);
+            if (rhs == 0 || lhs == 0) {
+                THROW_ERROR(vm, ERR_DIVIDE_BY_ZERO);
+            }
+
             push_int(vm, lhs / rhs);
-        } break;
+        }
+            break;
         case TYPE_DOUBLE: {
             double rhs = pop_double(vm);
             double lhs = pop_double(vm);
+
+            if (rhs == 0 || lhs == 0) {
+                THROW_ERROR(vm, ERR_DIVIDE_BY_ZERO);
+            }
+
             push_double(vm, lhs / rhs);
-        } break;
+        }
+            break;
         default:
             break;
     }
 }
 
 static void op_cast(vm_t *vm) {
-    type_code_t from_type = (type_code_t) NEXT_CODE(vm);
-    type_code_t to_type = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES from_type = (TYPE_CODES) NEXT_CODE(vm);
+    TYPE_CODES to_type = (TYPE_CODES) NEXT_CODE(vm);
 
     if (from_type == TYPE_INT) {
         int data = pop_int(vm);
@@ -211,7 +230,7 @@ static void op_cast(vm_t *vm) {
 }
 
 static void op_invert(vm_t *vm) {
-    type_code_t from_type = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES from_type = (TYPE_CODES) NEXT_CODE(vm);
 
     if (from_type == TYPE_INT) {
         int data = pop_int(vm);
@@ -223,7 +242,7 @@ static void op_invert(vm_t *vm) {
 }
 
 static void op_dbg_print(vm_t *vm) {
-    type_code_t code = (type_code_t) NEXT_CODE(vm);
+    TYPE_CODES code = (TYPE_CODES) NEXT_CODE(vm);
     switch (code) {
         case TYPE_INT:
             wprintf(L"%d\n", pop_int(vm));
@@ -238,8 +257,13 @@ void run_vm(vm_t *vm) {
     bool running = true;
 
     do {
+        if (vm->reg[REG_MACHINE_STATUS] != STATUS_GOOD) {
+            running = false;
+            break;
+        }
+
         char opcode = NEXT_CODE(vm);
-        switch(opcode) {
+        switch (opcode) {
             case OP_HALT:
                 wprintf(L"프로그램 종료.\n");
                 running = false;
@@ -281,5 +305,5 @@ void run_vm(vm_t *vm) {
                 running = false;
                 break;
         }
-    } while(running);
+    } while (running);
 }

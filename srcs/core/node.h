@@ -9,10 +9,10 @@
 
 #include "token.h"
 
+typedef enum NODE_TYPES NODE_TYPES;
 typedef struct node node_t;
-typedef enum node_type node_type_t;
 
-enum node_type {
+enum NODE_TYPES {
     NodeIntegerConstant,
     NodeFPConstant,
 
@@ -21,12 +21,12 @@ enum node_type {
 };
 
 struct node {
-    node_type_t type;
+    NODE_TYPES type;
     token_t token;
     node_t **child;
 };
 
-DLL_EXPORT node_t *create_node(node_type_t type, token_t token, node_t **child);
+DLL_EXPORT node_t *create_node(NODE_TYPES type, token_t token, node_t **child);
 DLL_EXPORT void destroy_node(node_t *node);
 
 #endif //BOM_NODE_H

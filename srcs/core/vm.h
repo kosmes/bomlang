@@ -14,12 +14,18 @@
 
 typedef struct vm vm_t;
 
-enum reg {
-    PROGRAM_CODE,
-    STACK_POINTER,
-    FRAME_POINTER,
+enum REGISTERS {
+    REG_PROGRAM_CODE,
+    REG_STACK_POINTER,
+    REG_FRAME_POINTER,
+    REG_MACHINE_STATUS,
 
     UNUSED_REG,
+};
+
+enum MACHINE_STATUS {
+    STATUS_GOOD,
+    STATUS_ERROR_THROWN,
 };
 
 struct vm {

@@ -4,7 +4,7 @@
 
 #include "token.h"
 
-token_t create_token(token_type_t type, unsigned int line) {
+token_t create_token(TOKEN_TYPES type, unsigned int line) {
     token_t token;
 
     token.type = type;
