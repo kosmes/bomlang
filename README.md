@@ -35,7 +35,7 @@ sh ./scripts/build.sh
 ## 기여 방법
 
 1. (https://github.com/kosmes/bomlang)을 포크합니다.
-2. (`git checkout -b feature-fooBar`) 명령어로 새 브랜치를 만드세요.
+2. (`git checkout -b feature/fooBar`) 명령어로 새 브랜치를 만드세요.
 3. (`git commit -am 'Add some fooBar'`) 명령어로 커밋하세요.
-4. (`git push origin feature-fooBar`) 명령어로 브랜치에 푸시하세요. 
+4. (`git push origin feature/fooBar`) 명령어로 브랜치에 푸시하세요. 
 5. 풀리퀘스트를 보내주세요.
