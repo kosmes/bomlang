@@ -18,6 +18,13 @@ enum NODE_TYPES {
 
     NodeBinOp,
     NodeUnaryOp,
+    NodeAssignOp,
+
+    NodeVar,
+
+    // stmt
+    NodeCompound,
+    NodeEmpty,
 };
 
 struct node {
