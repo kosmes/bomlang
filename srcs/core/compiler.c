@@ -150,6 +150,26 @@ static CODE_BUFFER visit_assign_op(node_t *node) {
     VISIT_RETURN;
 }
 
+static CODE_BUFFER visit_var(node_t *node) {
+    VISIT_PREPARE;
+
+    table_pair_t *pair = table_find_by_key(scope_table, node->token.str);
+
+    if (pair == NULL) {
+        error(ERR_UNDEF_VAR);
+        return NULL;
+    }
+
+    buf_push(codes, OP_LOAD);
+    converter_t cvt;
+    cvt.asSize = *((size_t *) pair->data);
+    for (int i = 0; i < 8; i++) {
+        buf_push(codes, cvt.asBytes[i]);
+    }
+
+    VISIT_RETURN;
+}
+
 static CODE_BUFFER visit_compound(node_t *node) {
     VISIT_PREPARE;
 
@@ -178,6 +198,9 @@ static CODE_BUFFER visit(node_t *node) {
 
         case NodeAssignOp:
             return visit_assign_op(node);
+
+        case NodeVar:
+            return visit_var(node);
 
         case NodeCompound:
             return visit_compound(node);
