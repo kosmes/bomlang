@@ -41,6 +41,8 @@ enum OP_CODES {
     OP_INVERT,
 
     OP_DBG_PRNIT,
+
+    OP_RETURN,
 };
 
 #endif //BOM_OPCODE_H
