@@ -164,6 +164,8 @@ int main(void) {
     init_vm(&vm);
 
     while (true) {
+        reset_error_count();
+        
         u16char *input = readline(L"bom> ");
         if(wcscmp(input, L"종료") == 0) {
             break;
