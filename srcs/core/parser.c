@@ -12,8 +12,6 @@ struct parser {
     token_t *tokens;
     token_t token;
     size_t pos;
-
-    unsigned short err_count;
 };
 
 static parser_t this;
@@ -39,8 +37,6 @@ static node_t *variable();
 DLL_EXPORT node_t *do_parse(token_t *tokens) {
     if (tokens != NULL) {
 
-        this.err_count = 0;
-
         this.tokens = tokens;
         this.pos = 0;
         this.token = this.tokens[this.pos];
@@ -52,11 +48,10 @@ DLL_EXPORT node_t *do_parse(token_t *tokens) {
     node_t *root_node = compound();
     if (this.token.type != TokenEndOfFile) {
         error_line(ERR_SYNTAX, this.token.line);
-        this.err_count++;
     }
-    if (this.err_count != 0) {
+    if (get_error_count() != 0) {
         destroy_node(root_node);
-        wprintf(L"오류 '%d'개가 검출되었습니다.\n", this.err_count);
+        wprintf(L"오류 '%d'개가 검출되었습니다.\n", get_error_count());
         return NULL;
     } else {
         return root_node;
@@ -68,13 +63,10 @@ static void eat(TOKEN_TYPES type, enum ERROR_CODE errcode) {
         error_line(errcode, this.token.line);
 
         this.token.type = TokenNone;
-        this.err_count++;
     } else {
         this.pos += 1;
         if (this.pos > buf_len(this.tokens)) {
             error_line(ERR_SYNTAX, this.token.line);
-
-            this.err_count++;
         } else {
             this.token = this.tokens[this.pos];
         }
@@ -173,7 +165,6 @@ static node_t **statement_list() {
 
     if (this.token.type == TokenIdentifier) {
         error_line(ERR_SEMI_EXPECTED, this.token.line);
-        this.err_count++;
     }
 
     return result;
@@ -190,7 +181,6 @@ static node_t *statement() {
 
         if (this.tokens[offset].type == TokenEndOfFile) {
             error_line(ERR_INVALID_EOF, this.token.line);
-            this.err_count++;
         }
 
         last_token = this.tokens[offset];
