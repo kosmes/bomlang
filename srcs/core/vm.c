@@ -193,7 +193,7 @@ static void op_store(vm_t *vm) {
             double data = pop_double(vm);
             var.data = malloc(sizeof(double));
             memcpy(var.data, &data, sizeof(double));
-            var.type_id = TYPE_INT;
+            var.type_id = TYPE_DOUBLE;
             break;
         }
         default:
