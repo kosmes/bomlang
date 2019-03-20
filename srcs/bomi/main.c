@@ -154,7 +154,7 @@ void print_script(script_t *script) {
 int main(void) {
     setlocale(LC_ALL, "");
 
-    wprintf(L"봄 인터프리터 0.0.1 베타 버전\n");
+    wprintf(L"봄 인터프리터 0.0.2 베타 버전\n");
     wprintf(L"종료하려면 Ctrl+C를 누르거나 '종료'를 입력하세요.\n");
 
     compiler_t compiler;
