@@ -159,8 +159,7 @@ static node_t *expr() {
 }
 
 static node_t *compound() {
-    token_t tkn = this.token;
-    return create_node(NodeCompound, tkn, statement_list());
+    return create_node(NodeCompound, create_token(TokenNone, 0), statement_list());
 }
 
 static node_t **statement_list() {
