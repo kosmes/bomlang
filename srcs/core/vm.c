@@ -22,6 +22,7 @@ void init_vm(vm_t *vm) {
     vm->reg[REG_PROGRAM_CODE] = 0;
     vm->reg[REG_FRAME_POINTER] = 0;
     vm->reg[REG_STACK_POINTER] = 0;
+    vm->reg[REG_MACHINE_STATUS] = 0;
 
     vm->data = NULL;
     vm->text = NULL;
