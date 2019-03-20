@@ -57,7 +57,10 @@ struct token {
     };
 
     /*  @brief  토큰의 문자열 값 */
-    wchar_t *str;
+    union {
+        u16char *str;
+        wchar_t *dbg_str;
+    };
 };
 
 /**
