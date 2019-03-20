@@ -22,6 +22,7 @@ enum ERROR_CODE {
     ERR_INVALID_ACCESS,
     ERR_INVALID_TOKEN,
     ERR_UNDEF_VAR,
+    ERR_DUPLE_VAR,
 };
 
 /**

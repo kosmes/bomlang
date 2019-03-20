@@ -21,6 +21,7 @@ const u16char *errstr[] = {
         L"잘못된 접근입니다.",
         L"잘못된 문자입니다.",
         L"선언하지 않은 변수입니다.",
+        L"재 선언된 변수입니다.",
 };
 
 void error(enum ERROR_CODE err) {
