@@ -4,6 +4,7 @@
 
 #include "syntax.h"
 #include "buf.h"
+#include "error.h"
 
 #define WNULL L'\0'
 #define CHECK1(c, t) if (this.ch == L##c) { buf_push(tokens, create_token(t, this.line)); advance(); continue; }
@@ -154,6 +155,9 @@ token_t *get_tokens(wchar_t *text) {
             buf_push(tokens, get_id());
             continue;
         }
+
+        error_line(ERR_INVALID_TOKEN, this.line);
+        advance();
     }
 
     buf_push(tokens, create_token(TokenEndOfFile, this.line));
