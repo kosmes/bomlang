@@ -35,6 +35,7 @@ enum TOKEN_TYPES {
     TokenLeftBrace /* { */, TokenRightBrace /* } */,
     TokenLeftParen, TokenRightParen,
     TokenBoolType, TokenCharType, TokenIntType, TokenDoubleType,
+    TokenVarDecl,
     TokenEndOfFile, TokenEndOfLine, TokenEndOfFunction,
 };
 
