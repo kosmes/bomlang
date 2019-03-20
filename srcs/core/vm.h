@@ -12,6 +12,7 @@
 #define MEMORY_SIZE 0x4096
 #define STACK_SIZE 0x24
 
+typedef struct var var_t;
 typedef struct vm vm_t;
 
 enum REGISTERS {
@@ -28,6 +29,11 @@ enum MACHINE_STATUS {
     STATUS_ERROR_THROWN,
 };
 
+struct var {
+    TYPE_IDS type_id;
+    void *data;
+};
+
 struct vm {
     union {
         struct {
@@ -38,7 +44,7 @@ struct vm {
     };
 
     unsigned short reg[16];
-    unsigned char stack[STACK_SIZE];
+    var_t stack[STACK_SIZE];
 };
 
 DLL_EXPORT void init_vm(vm_t *vm);
