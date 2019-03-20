@@ -203,6 +203,25 @@ static void op_store(vm_t *vm) {
     vm->local[addr] = var;
 }
 
+static void op_load(vm_t *vm) {
+    converter_t cvt;
+    for (int i = 0; i < 8; i++) {
+        cvt.asBytes[i] = NEXT_CODE(vm);
+    }
+    size_t addr = cvt.asSize;
+    var_t var = vm->local[addr];
+    switch (var.type_id) {
+        case TYPE_INT:
+            push_int(vm, *((int *) var.data));
+            break;
+        case TYPE_DOUBLE:
+            push_double(vm, *((double *) var.data));
+            break;
+        default:
+            break;
+    }
+}
+
 static void op_add(vm_t *vm) {
     TYPE_IDS type = cast_stack_2value_equal_from_top(vm);
 
@@ -344,6 +363,10 @@ void run_vm(vm_t *vm) {
 
             case OP_STORE:
                 op_store(vm);
+                break;
+
+            case OP_LOAD:
+                op_load(vm);
                 break;
 
             case OP_ADD:
