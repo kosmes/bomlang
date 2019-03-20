@@ -15,6 +15,7 @@ typedef struct var var_t;
 
 enum TYPE_IDS {
     TYPE_NONE,
+    TYPE_AUTO,
     TYPE_INT,
     TYPE_DOUBLE,
 };
