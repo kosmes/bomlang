@@ -180,13 +180,19 @@ int main(void) {
             continue;
         }
 
-        // print_node(root_node, 0);
+#if DEBUG_MODE
+        print_node(root_node, 0);
+#endif
 
         if (!compile(&compiler, root_node)) {
             continue;
         }
 
+        destroy_node(root_node);
+
+#if DEBUG_MODE
         print_script(compiler.root_script);
+#endif
 
         set_script(&vm, compiler.root_script);
         final_script(compiler.root_script);
