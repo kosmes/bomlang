@@ -4,6 +4,8 @@
 
 #include "error.h"
 
+static unsigned short err_count = 0;
+
 const u16char *errstr[] = {
         L"오류",
         L"구문 오류.",
@@ -21,9 +23,19 @@ const u16char *errstr[] = {
 };
 
 void error(enum ERROR_CODE err) {
+    err_count++;
     wprintf(L"오류 %ls\n", errstr[err]);
 }
 
 void error_line(enum ERROR_CODE err, unsigned int line) {
+    err_count++;
     wprintf(L"오류 [ %d 줄 ] %ls\n", line, errstr[err]);
+}
+
+void reset_error_count() {
+    err_count = 0;
+}
+
+unsigned short get_error_count() {
+    return err_count;
 }

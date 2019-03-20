@@ -32,4 +32,8 @@ DLL_EXPORT void error(enum ERROR_CODE err);
  */
 DLL_EXPORT void error_line(enum ERROR_CODE err, unsigned int line);
 
+DLL_EXPORT void reset_error_count();
+
+DLL_EXPORT unsigned short get_error_count();
+
 #endif //BOM_ERRNO_H
