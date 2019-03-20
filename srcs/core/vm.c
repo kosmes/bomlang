@@ -251,7 +251,17 @@ static void op_div(vm_t *vm) {
 }
 
 static void op_invert(vm_t *vm) {
-
+    TYPE_IDS type = GET_STACK(vm, 0).type_id;
+    switch (type) {
+        case TYPE_INT: {
+            push_int(vm, -pop_int(vm));
+        } break;
+        case TYPE_DOUBLE: {
+            push_double(vm, -pop_double(vm));
+        } break;
+        default:
+            break;
+    }
 }
 
 static void op_dbg_print(vm_t *vm) {
