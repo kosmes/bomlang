@@ -102,6 +102,7 @@ static token_t get_id() {
 
     token.type = TokenIdentifier;
     token.i32 = 0;
+    token.line = this.line;
     token.str = id;
 
     return token;
