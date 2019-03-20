@@ -45,6 +45,7 @@ struct vm {
 
     unsigned short reg[16];
     var_t stack[STACK_SIZE];
+    var_t local[STACK_SIZE];
 };
 
 DLL_EXPORT void init_vm(vm_t *vm);

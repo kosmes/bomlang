@@ -17,6 +17,9 @@ void init_vm(vm_t *vm) {
     for (int i = 0; i < STACK_SIZE; i++) {
         vm->stack[i].type_id = TYPE_NONE;
         vm->stack[i].data = NULL;
+
+        vm->local[i].type_id = TYPE_NONE;
+        vm->local[i].data = NULL;
     }
 }
 
@@ -166,6 +169,40 @@ static void op_const(vm_t *vm) {
     }
 }
 
+static void op_store(vm_t *vm) {
+    TYPE_IDS type = GET_STACK(vm, 0).type_id;
+    converter_t cvt;
+    for (int i = 0; i < 8; i++) {
+        cvt.asBytes[i] = NEXT_CODE(vm);
+    }
+    size_t addr = cvt.asSize;
+    var_t var = vm->local[addr];
+    if (var.data != NULL) {
+        free(var.data);
+    }
+
+    switch (type) {
+        case TYPE_INT: {
+            int data = pop_int(vm);
+            var.data = malloc(sizeof(int));
+            memcpy(var.data, &data, sizeof(int));
+            var.type_id = TYPE_INT;
+            break;
+        }
+        case TYPE_DOUBLE: {
+            double data = pop_double(vm);
+            var.data = malloc(sizeof(double));
+            memcpy(var.data, &data, sizeof(double));
+            var.type_id = TYPE_INT;
+            break;
+        }
+        default:
+            break;
+    }
+
+    vm->local[addr] = var;
+}
+
 static void op_add(vm_t *vm) {
     TYPE_IDS type = cast_stack_2value_equal_from_top(vm);
 
@@ -267,7 +304,7 @@ static void op_invert(vm_t *vm) {
         case TYPE_DOUBLE:
             push_double(vm, -pop_double(vm));
             break;
-            
+
         default:
             break;
     }
@@ -294,7 +331,7 @@ void run_vm(vm_t *vm) {
             break;
         }
 
-        char opcode = NEXT_CODE(vm);
+        OP_CODES opcode = NEXT_CODE(vm);
         switch (opcode) {
             case OP_HALT:
                 wprintf(L"프로그램 종료.\n");
@@ -303,6 +340,10 @@ void run_vm(vm_t *vm) {
 
             case OP_CONST:
                 op_const(vm);
+                break;
+
+            case OP_STORE:
+                op_store(vm);
                 break;
 
             case OP_ADD:
