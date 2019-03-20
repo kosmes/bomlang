@@ -34,6 +34,7 @@ struct keyword {
 static const unsigned char keyword_count = 3;
 const struct keyword keywords[] = {
         {.key = L"선언", .token = {.type=TokenVarDecl,    .i32 = 0, .line = 0, .str = NULL}},
+        {.key = L"자동", .token = {.type=TokenAutoType,   .i32 = 0, .line = 0, .str = NULL}},
         {.key = L"정수", .token = {.type=TokenIntType,    .i32 = 0, .line = 0, .str = NULL}},
         {.key = L"실수", .token = {.type=TokenDoubleType, .i32 = 0, .line = 0, .str = NULL}},
 };
