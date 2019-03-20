@@ -8,6 +8,11 @@
 typedef enum TYPE_IDS TYPE_IDS;
 typedef enum OP_CODES OP_CODES;
 
+/**
+ * @brief   아무 정보 형이든 다 가질 수 있는 구조체
+ */
+typedef struct var var_t;
+
 enum TYPE_IDS {
     TYPE_NONE,
     TYPE_INT,
@@ -43,6 +48,15 @@ enum OP_CODES {
     OP_DBG_PRNIT,
 
     OP_RETURN,
+};
+
+/**
+ * @brief   아무 정보 형이든 다 가질 수 있는 구조체
+ */
+struct var {
+    TYPE_IDS type_id;           /* < 변수 종류 */
+    void *data;                 /* < 변수 값 */
+    const u16char *dbg_name;    /* < 디버그용 변수 이름 */
 };
 
 #endif //BOM_OPCODE_H

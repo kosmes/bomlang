@@ -13,11 +13,6 @@
 #define STACK_SIZE 0x24
 
 /**
- * @brief   아무 정보 형이든 다 가질 수 있는 구조체
- */
-typedef struct var var_t;
-
-/**
  * @brief   가상머신에 관련한 정보를 가지고있는 구조체
  */
 typedef struct vm vm_t;
@@ -40,14 +35,6 @@ enum REGISTERS {
 enum MACHINE_STATUS {
     STATUS_GOOD,
     STATUS_ERROR_THROWN,
-};
-
-/**
- * @brief   아무 정보 형이든 다 가질 수 있는 구조체
- */
-struct var {
-    TYPE_IDS type_id;   /* < 변수 종류 */
-    void *data;         /* < 변수 값 */
 };
 
 /**
