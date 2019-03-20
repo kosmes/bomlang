@@ -41,10 +41,10 @@ static CODE_BUFFER visit_integer_constant(node_t *node) {
     buf_push(codes, OP_CONST);
 
     converter_t cvt;
-    cvt.asSize = add_int_and_return_addr(this->root_script, node->token.i32);
+    cvt.as_size = add_int_and_return_addr(this->root_script, node->token.i32);
 
     for (int i = 0; i < 8; i++) {
-        buf_push(codes, cvt.asBytes[i]);
+        buf_push(codes, cvt.as_bytes[i]);
     }
 
     VISIT_RETURN;
@@ -56,10 +56,10 @@ static CODE_BUFFER visit_fp_constant(node_t *node) {
     buf_push(codes, OP_CONST);
 
     converter_t cvt;
-    cvt.asSize = add_double_and_return_addr(this->root_script, node->token.f64);
+    cvt.as_size = add_double_and_return_addr(this->root_script, node->token.f64);
 
     for (int i = 0; i < 8; i++) {
-        buf_push(codes, cvt.asBytes[i]);
+        buf_push(codes, cvt.as_bytes[i]);
     }
 
     VISIT_RETURN;
@@ -148,16 +148,16 @@ static CODE_BUFFER visit_assign_op(node_t *node) {
     buf_push(codes, OP_STORE);
 
     converter_t cvt;
-    cvt.asSize = slot;
+    cvt.as_size = slot;
 
     for (int i = 0; i < 8; i++) {
-        buf_push(codes, cvt.asBytes[i]);
+        buf_push(codes, cvt.as_bytes[i]);
     }
 
     buf_push(codes, OP_LOAD);
 
     for (int i = 0; i < 8; i++) {
-        buf_push(codes, cvt.asBytes[i]);
+        buf_push(codes, cvt.as_bytes[i]);
     }
 
     VISIT_RETURN;
@@ -176,9 +176,9 @@ static CODE_BUFFER visit_var(node_t *node) {
 
     buf_push(codes, OP_LOAD);
     converter_t cvt;
-    cvt.asSize = *((size_t *) pair->data);
+    cvt.as_size = *((size_t *) pair->data);
     for (int i = 0; i < 8; i++) {
-        buf_push(codes, cvt.asBytes[i]);
+        buf_push(codes, cvt.as_bytes[i]);
     }
 
     VISIT_RETURN;

@@ -24,12 +24,12 @@
 typedef union converter converter_t;
 
 union converter {
-    short asShort;
-    int asInteger;
+    short as_short;
     double asDouble;
-    u16char asChar;
-    size_t asSize;
-    unsigned char asBytes[8];
+    int as_integer;
+    u16char as_char;
+    size_t as_size;
+    unsigned char as_bytes[8];
 };
 
 #endif /* ifndef COMMON_H */

@@ -21,14 +21,14 @@ DLL_EXPORT void final_script(script_t *script) {
 
 size_t add_int_and_return_addr(script_t *script, int data) {
     converter_t cvt;
-    cvt.asInteger = data;
+    cvt.as_integer = data;
 
     size_t addr = buf_len(script->data);
 
     buf_push(script->data, TYPE_INT);
 
     for (int i = 0; i < 4; i++) {
-        buf_push(script->data, cvt.asBytes[i]);
+        buf_push(script->data, cvt.as_bytes[i]);
     }
 
     return addr;
@@ -43,7 +43,7 @@ size_t add_double_and_return_addr(script_t *script, double data) {
     buf_push(script->data, TYPE_DOUBLE);
 
     for (int i = 0; i < 8; i++) {
-        buf_push(script->data, cvt.asBytes[i]);
+        buf_push(script->data, cvt.as_bytes[i]);
     }
 
     return addr;
@@ -54,18 +54,18 @@ size_t add_string_and_return_addr(script_t *script, const wchar_t *data) {
     size_t addr = (size_t) buf_len(script->data);
 
     converter_t cvt;
-    cvt.asInteger = len;
+    cvt.as_integer = len;
 
     // buf_push(script->data, TYPE_STRING);
 
     for (int i = 0; i < 2; i++) {
-        buf_push(script->data, cvt.asBytes[i]);
+        buf_push(script->data, cvt.as_bytes[i]);
     }
 
     for (int i = 0; i < len; i++) {
-        cvt.asChar = data[i];
-        buf_push(script->data, cvt.asBytes[0]);
-        buf_push(script->data, cvt.asBytes[1]);
+        cvt.as_char = data[i];
+        buf_push(script->data, cvt.as_bytes[0]);
+        buf_push(script->data, cvt.as_bytes[1]);
     }
 
     return addr;
@@ -77,10 +77,10 @@ int get_int_from_addr(script_t *script, size_t addr) {
     cvt.asDouble = 0;
 
     for (int i = 0; i < 4; i++) {
-        cvt.asBytes[i] = script->data[offset + i];
+        cvt.as_bytes[i] = script->data[offset + i];
     }
 
-    return cvt.asInteger;
+    return cvt.as_integer;
 }
 
 double get_double_from_addr(script_t *script, size_t addr) {
@@ -89,7 +89,7 @@ double get_double_from_addr(script_t *script, size_t addr) {
     cvt.asDouble = 0;
 
     for (int i = 0; i < 8; i++) {
-        cvt.asBytes[i] = script->data[offset + i];
+        cvt.as_bytes[i] = script->data[offset + i];
     }
 
     return cvt.asDouble;
@@ -103,19 +103,19 @@ const wchar_t *get_string_from_addr(script_t *script, size_t addr) {
     cvt.asDouble = 0;
 
     for (int i = 0; i < 2; i++) {
-        cvt.asBytes[i] = script->data[offset++];
+        cvt.as_bytes[i] = script->data[offset++];
     }
 
-    len = cvt.asShort;
+    len = cvt.as_short;
     wchar_t *str = malloc(sizeof(wchar_t) * (len + 1));
 
     for (int i = 0; i < len; i++) {
         cvt.asDouble = 0;
 
-        cvt.asBytes[0] = script->data[offset++];
-        cvt.asBytes[1] = script->data[offset++];
+        cvt.as_bytes[0] = script->data[offset++];
+        cvt.as_bytes[1] = script->data[offset++];
 
-        str[i] = cvt.asChar;
+        str[i] = cvt.as_char;
     }
 
     str[len] = L'\0';

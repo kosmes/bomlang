@@ -156,17 +156,17 @@ static void op_const(vm_t *vm) {
     converter_t cvt;
     cvt.asDouble = 0;
     for (int i = 0; i < 8; i++) {
-        cvt.asBytes[i] = NEXT_CODE(vm);
+        cvt.as_bytes[i] = NEXT_CODE(vm);
     }
 
-    TYPE_IDS type_id = (TYPE_IDS) vm->data[cvt.asSize++];
+    TYPE_IDS type_id = (TYPE_IDS) vm->data[cvt.as_size++];
 
     switch (type_id) {
         case TYPE_INT:
-            push_int(vm, get_int_from_addr(&vm->script, cvt.asSize));
+            push_int(vm, get_int_from_addr(&vm->script, cvt.as_size));
             break;
         case TYPE_DOUBLE:
-            push_double(vm, get_double_from_addr(&vm->script, cvt.asSize));
+            push_double(vm, get_double_from_addr(&vm->script, cvt.as_size));
             break;
         default:
             break;
@@ -177,9 +177,9 @@ static void op_store(vm_t *vm) {
     TYPE_IDS type = GET_STACK(vm, 0).type_id;
     converter_t cvt;
     for (int i = 0; i < 8; i++) {
-        cvt.asBytes[i] = NEXT_CODE(vm);
+        cvt.as_bytes[i] = NEXT_CODE(vm);
     }
-    size_t addr = cvt.asSize;
+    size_t addr = cvt.as_size;
     var_t var = vm->local[addr];
     if (var.data != NULL) {
         free(var.data);
@@ -210,9 +210,9 @@ static void op_store(vm_t *vm) {
 static void op_load(vm_t *vm) {
     converter_t cvt;
     for (int i = 0; i < 8; i++) {
-        cvt.asBytes[i] = NEXT_CODE(vm);
+        cvt.as_bytes[i] = NEXT_CODE(vm);
     }
-    size_t addr = cvt.asSize;
+    size_t addr = cvt.as_size;
     var_t var = vm->local[addr];
     switch (var.type_id) {
         case TYPE_INT:

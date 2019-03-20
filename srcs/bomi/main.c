@@ -78,10 +78,10 @@ void print_const(script_t *script, size_t *offset) {
     cvt.asDouble = 0;
 
     for (int i = 0; i < 8; i++) {
-        cvt.asBytes[i] = script->text[(*(offset))++];
+        cvt.as_bytes[i] = script->text[(*(offset))++];
     }
 
-    size_t addr = cvt.asSize;
+    size_t addr = cvt.as_size;
     TYPE_IDS type_id = script->data[addr++];
     switch(type_id) {
         case TYPE_INT: {
@@ -112,20 +112,20 @@ void print_script(script_t *script) {
                 converter_t cvt;
                 cvt.asDouble = 0;
                 for (int i = 0; i < 8; i++) {
-                    cvt.asBytes[i] = fetch();
+                    cvt.as_bytes[i] = fetch();
                 }
 
-                wprintf(L"\tto: %zd\n", cvt.asSize);
+                wprintf(L"\tto: %zd\n", cvt.as_size);
             } break;
             case OP_LOAD: {
                 wprintf(L"load ");
                 converter_t cvt;
                 cvt.asDouble = 0;
                 for (int i = 0; i < 8; i++) {
-                    cvt.asBytes[i] = fetch();
+                    cvt.as_bytes[i] = fetch();
                 }
 
-                wprintf(L"\tfrom: %zd\n", cvt.asSize);
+                wprintf(L"\tfrom: %zd\n", cvt.as_size);
             } break;
             case OP_ADD: {
                 wprintf(L"add ");
