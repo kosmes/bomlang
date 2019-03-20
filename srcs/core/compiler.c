@@ -28,7 +28,6 @@ void init_compiler(compiler_t *compiler) {
     init_table(compiler->scope_table);
 
     compiler->offset = 0;
-    compiler->err_count = 0;
 }
 
 void final_compiler(compiler_t *compiler) {
@@ -73,7 +72,6 @@ static CODE_BUFFER visit_bin_op(node_t *node) {
     node_t *rhs = node->child[1];
 
     if (lhs == NULL || rhs == NULL) {
-        this->err_count++;
         error_line(ERR_NO_EXPR, node->token.line);
     }
 
@@ -136,7 +134,6 @@ static CODE_BUFFER visit_assign_op(node_t *node) {
         *(slot_ptr) = this->offset++;
         if ((pair = table_insert_data(this->scope_table,
                                       lhs->token.str, slot_ptr)) == NULL) {
-            this->err_count++;
             error(ERR_ERROR);
             return NULL;
         }
@@ -173,7 +170,6 @@ static CODE_BUFFER visit_var(node_t *node) {
                                            node->token.str);
 
     if (pair == NULL) {
-        this->err_count++;
         error(ERR_UNDEF_VAR);
         return NULL;
     }
@@ -235,9 +231,9 @@ bool compile(compiler_t *compiler, node_t *root_node) {
 
     CODE_BUFFER result = visit(root_node);
 
-    if (this->err_count != 0) {
+    if (get_error_count() != 0) {
         buf_free(result);
-        wprintf(L"오류 '%d'개가 검출되었습니다.\n", this->err_count);
+        wprintf(L"오류 '%d'개가 검출되었습니다.\n", get_error_count());
         return false;
     }
 
