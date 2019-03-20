@@ -16,6 +16,8 @@ struct compiler {
     script_t *root_script;
     table_t *scope_table;
     size_t offset;
+
+    unsigned short err_count;
 };
 
 DLL_EXPORT void init_compiler(compiler_t *compiler);
