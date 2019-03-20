@@ -162,6 +162,11 @@ token_t *get_tokens(wchar_t *text) {
 
     buf_push(tokens, create_token(TokenEndOfFile, this.line));
 
+    if (get_error_count() != 0) {
+        buf_free(tokens);
+        return NULL;
+    }
+
     return tokens;
 }
 
