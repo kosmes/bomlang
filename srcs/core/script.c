@@ -4,6 +4,7 @@
 
 #include "script.h"
 #include "buf.h"
+#include "runtime.h"
 
 void init_script(script_t *script) {
     script->text = NULL;
@@ -21,6 +22,8 @@ size_t add_int_and_return_addr(script_t *script, int data) {
 
     size_t addr = buf_len(script->data);
 
+    buf_push(script->data, TYPE_INT);
+
     for (int i = 0; i < 4; i++) {
         buf_push(script->data, cvt.asBytes[i]);
     }
@@ -33,6 +36,8 @@ size_t add_double_and_return_addr(script_t *script, double data) {
     cvt.asDouble = data;
 
     size_t addr = buf_len(script->data);
+
+    buf_push(script->data, TYPE_DOUBLE);
 
     for (int i = 0; i < 8; i++) {
         buf_push(script->data, cvt.asBytes[i]);
@@ -47,6 +52,8 @@ size_t add_string_and_return_addr(script_t *script, const wchar_t *data) {
 
     converter_t cvt;
     cvt.asInteger = len;
+
+    // buf_push(script->data, TYPE_STRING);
 
     for (int i = 0; i < 2; i++) {
         buf_push(script->data, cvt.asBytes[i]);
