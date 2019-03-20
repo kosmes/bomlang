@@ -48,6 +48,9 @@ void final_vm(vm_t *vm) {
 }
 
 void set_script(vm_t *vm, script_t *script) {
+    final_script(&vm->script);
+    vm->reg[REG_PROGRAM_CODE] = 0;
+
     for (int i = 0; i < buf_len(script->data); i++) {
         buf_push(vm->data, script->data[i]);
     }
