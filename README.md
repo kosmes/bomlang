@@ -1,4 +1,4 @@
-# Bom Lang
+﻿# Bom Lang
 한국어 프로그래밍 언어 Bom 입니다
 
 ## 설치 방법
