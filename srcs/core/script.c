@@ -14,6 +14,9 @@ void init_script(script_t *script) {
 DLL_EXPORT void final_script(script_t *script) {
     buf_free(script->data);
     buf_free(script->text);
+
+    script->text = NULL;
+    script->data = NULL;
 }
 
 size_t add_int_and_return_addr(script_t *script, int data) {
