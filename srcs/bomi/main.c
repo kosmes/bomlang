@@ -157,8 +157,14 @@ int main(void) {
     wprintf(L"봄 인터프리터 0.0.1 베타 버전\n");
     wprintf(L"종료하려면 Ctrl+C를 누르거나 '종료'를 입력하세요.\n");
 
+    compiler_t compiler;
+    vm_t vm;
+
+    init_compiler(&compiler);
+    init_vm(&vm);
+
     while (true) {
-        u16char *input = L"ㄱ = 10 + 1.2;\n ㄴ = 10 * ㄱ;"; //readline(L"bom> ");
+        u16char *input = readline(L"bom> ");
         if(wcscmp(input, L"종료") == 0) {
             break;
         }
@@ -176,19 +182,19 @@ int main(void) {
 
         // print_node(root_node, 0);
 
-        script_t *script = compile(root_node);
-        print_script(script);
+        if (!compile(&compiler, root_node)) {
+            continue;
+        }
 
-        return 0;
+        print_script(compiler.root_script);
 
-        vm_t vm;
-        init_vm(&vm);
-
-        set_script(&vm, script);
-        final_script(script);
+        set_script(&vm, compiler.root_script);
+        final_script(compiler.root_script);
 
         run_vm(&vm);
-        final_vm(&vm);
     }
+
+    final_compiler(&compiler);
+    final_vm(&vm);
     return 0;
 }
