@@ -127,7 +127,8 @@ static TYPE_IDS cast_stack_2value_equal_from_top(vm_t *vm) {
                 push_int(vm, (int) pop_double(vm));
             }
             push_int(vm, first_data);
-        } break;
+        }
+            break;
         case TYPE_DOUBLE: {
             double first_data = pop_double(vm);
             if (second == TYPE_INT) {
@@ -135,7 +136,8 @@ static TYPE_IDS cast_stack_2value_equal_from_top(vm_t *vm) {
                 push_double(vm, (double) pop_int(vm));
             }
             push_double(vm, first_data);
-        } break;
+        }
+            break;
         default:
             break;
     }
@@ -172,14 +174,14 @@ static void op_add(vm_t *vm) {
             int rhs = pop_int(vm);
             int lhs = pop_int(vm);
             push_int(vm, lhs + rhs);
-        }
             break;
+        }
         case TYPE_DOUBLE: {
             double rhs = pop_double(vm);
             double lhs = pop_double(vm);
             push_double(vm, lhs + rhs);
-        }
             break;
+        }
         default:
             break;
     }
@@ -193,12 +195,14 @@ static void op_sub(vm_t *vm) {
             int rhs = pop_int(vm);
             int lhs = pop_int(vm);
             push_int(vm, lhs - rhs);
-        } break;
+            break;
+        }
         case TYPE_DOUBLE: {
             double rhs = pop_double(vm);
             double lhs = pop_double(vm);
             push_double(vm, lhs - rhs);
-        } break;
+            break;
+        }
         default:
             break;
     }
@@ -212,12 +216,14 @@ static void op_mul(vm_t *vm) {
             int rhs = pop_int(vm);
             int lhs = pop_int(vm);
             push_int(vm, lhs * rhs);
-        } break;
+            break;
+        }
         case TYPE_DOUBLE: {
             double rhs = pop_double(vm);
             double lhs = pop_double(vm);
             push_double(vm, lhs * rhs);
-        } break;
+            break;
+        }
         default:
             break;
     }
@@ -235,7 +241,8 @@ static void op_div(vm_t *vm) {
                 return;
             }
             push_int(vm, lhs - rhs);
-        } break;
+            break;
+        }
         case TYPE_DOUBLE: {
             double rhs = pop_double(vm);
             double lhs = pop_double(vm);
@@ -244,7 +251,8 @@ static void op_div(vm_t *vm) {
                 return;
             }
             push_double(vm, lhs - rhs);
-        } break;
+            break;
+        }
         default:
             break;
     }
@@ -253,12 +261,13 @@ static void op_div(vm_t *vm) {
 static void op_invert(vm_t *vm) {
     TYPE_IDS type = GET_STACK(vm, 0).type_id;
     switch (type) {
-        case TYPE_INT: {
+        case TYPE_INT:
             push_int(vm, -pop_int(vm));
-        } break;
-        case TYPE_DOUBLE: {
+            break;
+        case TYPE_DOUBLE:
             push_double(vm, -pop_double(vm));
-        } break;
+            break;
+            
         default:
             break;
     }
