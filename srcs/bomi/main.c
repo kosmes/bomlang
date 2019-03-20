@@ -73,17 +73,7 @@ void print_node(node_t *node, int indent) {
 
 #define fetch() script->text[offset++]
 
-void print_type(TYPE_IDS code) {
-    const u16char *str[] = {
-            L"none",
-            L"integer",
-            L"double"
-    };
-
-    wprintf(L"\ttype: %7ls ", str[(char) code]);
-}
-
-void print_const(script_t *script, TYPE_IDS code, size_t *offset) {
+void print_const(script_t *script, size_t *offset) {
     converter_t cvt;
     cvt.asDouble = 0;
 
@@ -92,7 +82,8 @@ void print_const(script_t *script, TYPE_IDS code, size_t *offset) {
     }
 
     size_t addr = cvt.asSize;
-    switch(code) {
+    TYPE_IDS type_id = script->data[addr++];
+    switch(type_id) {
         case TYPE_INT: {
             int data = get_int_from_addr(script, addr);
             wprintf(L"\tvalue: %d ", data);
@@ -112,16 +103,12 @@ void print_script(script_t *script) {
     while(offset < len) {
         switch (fetch()) {
             case OP_CONST: {
-                TYPE_IDS type = fetch();
                 wprintf(L"const ");
-                print_type(type);
-                print_const(script, type, &offset);
+                print_const(script, &offset);
                 wprintf(L"\n");
             } break;
             case OP_STORE: {
-                TYPE_IDS type = fetch();
                 wprintf(L"store ");
-                print_type(type);
                 converter_t cvt;
                 cvt.asDouble = 0;
                 for (int i = 0; i < 8; i++) {
@@ -131,9 +118,7 @@ void print_script(script_t *script) {
                 wprintf(L"\tto: %zd\n", cvt.asSize);
             } break;
             case OP_LOAD: {
-                TYPE_IDS type = fetch();
                 wprintf(L"load ");
-                print_type(type);
                 converter_t cvt;
                 cvt.asDouble = 0;
                 for (int i = 0; i < 8; i++) {
@@ -144,33 +129,22 @@ void print_script(script_t *script) {
             } break;
             case OP_ADD: {
                 wprintf(L"add ");
-                print_type(fetch());
                 wprintf(L"\n");
             } break;
             case OP_SUB: {
                 wprintf(L"sub ");
-                print_type(fetch());
                 wprintf(L"\n");
             } break;
             case OP_MUL: {
                 wprintf(L"mul ");
-                print_type(fetch());
                 wprintf(L"\n");
             } break;
             case OP_DIV: {
                 wprintf(L"div ");
-                print_type(fetch());
-                wprintf(L"\n");
-            } break;
-            case OP_CAST: {
-                wprintf(L"cast ");
-                print_type(fetch());
-                print_type(fetch());
                 wprintf(L"\n");
             } break;
             case OP_INVERT: {
                 wprintf(L"invert ");
-                print_type(fetch());
                 wprintf(L"\n");
             } break;
         }
