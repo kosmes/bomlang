@@ -6,6 +6,18 @@
 #include "buf.h"
 #include "error.h"
 
+#define NEXT_CODE(vm) ((vm)->text[(vm)->reg[REG_PROGRAM_CODE]++])
+#define THROW_ERROR(vm, errcode) (error_line(errcode, 0), \
+        (vm)->reg[REG_MACHINE_STATUS] = STATUS_ERROR_THROWN); return;
+
+#define CHECK_STACK_OVERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] + offset >= STACK_SIZE) \
+    { error_line(ERR_STACK_OVERFLOW, 0); return; }
+
+#define CHECK_STACK_UNDERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] - offset < 0) \
+    { error_line(ERR_STACK_UNDERFLOW, 0); return 0; }
+
+#define GET_STACK(vm, offset) ((vm)->stack[(vm)->reg[REG_STACK_POINTER] - offset - 1])
+
 void init_vm(vm_t *vm) {
     vm->reg[REG_PROGRAM_CODE] = 0;
     vm->reg[REG_FRAME_POINTER] = 0;
@@ -43,18 +55,6 @@ void set_script(vm_t *vm, script_t *script) {
         buf_push(vm->text, script->text[i]);
     }
 }
-
-#define NEXT_CODE(vm) ((vm)->text[(vm)->reg[REG_PROGRAM_CODE]++])
-#define THROW_ERROR(vm, errcode) (error_line(errcode, 0), \
-        (vm)->reg[REG_MACHINE_STATUS] = STATUS_ERROR_THROWN); return;
-
-#define CHECK_STACK_OVERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] + offset >= STACK_SIZE) \
-    { error_line(ERR_STACK_OVERFLOW, 0); return; }
-
-#define CHECK_STACK_UNDERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] - offset < 0) \
-    { error_line(ERR_STACK_UNDERFLOW, 0); return 0; }
-
-#define GET_STACK(vm, offset) ((vm)->stack[(vm)->reg[REG_STACK_POINTER] - offset - 1])
 
 static void push_int(vm_t *vm, int data) {
     CHECK_STACK_OVERFLOW(vm, 1);
@@ -130,8 +130,8 @@ static TYPE_IDS cast_stack_2value_equal_from_top(vm_t *vm) {
                 push_int(vm, (int) pop_double(vm));
             }
             push_int(vm, first_data);
-        }
             break;
+        }
         case TYPE_DOUBLE: {
             double first_data = pop_double(vm);
             if (second == TYPE_INT) {
@@ -139,8 +139,8 @@ static TYPE_IDS cast_stack_2value_equal_from_top(vm_t *vm) {
                 push_double(vm, (double) pop_int(vm));
             }
             push_double(vm, first_data);
-        }
             break;
+        }
         default:
             break;
     }
@@ -327,6 +327,10 @@ static void op_invert(vm_t *vm) {
         default:
             break;
     }
+}
+
+static void op_return(vm_t *vm) {
+
 }
 
 static void op_dbg_print(vm_t *vm) {
