@@ -19,6 +19,7 @@ enum ERROR_CODE {
     ERR_INVALID_EOF,
     ERR_INVALID_INDEX,
     ERR_INVALID_ACCESS,
+    ERR_UNDEF_VAR,
 };
 
 DLL_EXPORT void error(enum ERROR_CODE err);
