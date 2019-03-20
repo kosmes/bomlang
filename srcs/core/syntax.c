@@ -26,6 +26,18 @@ struct syntax {
 
 static syntax_t this;
 
+struct keyword {
+    const u16char *key;
+    const token_t token;
+};
+
+static const unsigned char keyword_count = 3;
+const struct keyword keywords[] = {
+        {.key = L"선언", .token = {.type=TokenVarDecl,    .i32 = 0, .line = 0, .str = NULL}},
+        {.key = L"정수", .token = {.type=TokenIntType,    .i32 = 0, .line = 0, .str = NULL}},
+        {.key = L"실수", .token = {.type=TokenDoubleType, .i32 = 0, .line = 0, .str = NULL}},
+};
+
 static bool is_idable(u16char ch) {
     const u16char *specials = L"!@#$%^&*()+=-<>,./?'\";:[]{}~`";
     u16char data[2] = { WNULL, };
@@ -100,6 +112,15 @@ static token_t get_id() {
     wcsncpy(id, start, offset);
 
     id[offset] = WNULL;
+
+    for (int i = 0; i < keyword_count; i++) {
+        if (wcscmp(keywords[i].key, id) == 0) {
+            token = keywords[i].token;
+            token.line = this.line;
+
+            return token;
+        }
+    }
 
     token.type = TokenIdentifier;
     token.i32 = 0;
