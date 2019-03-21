@@ -66,7 +66,7 @@ void print_node(node_t *node, int indent) {
             break;
 
         case NodeEmpty:
-            wprintf(L"NodeEmpty");
+            wprintf(L"NodeEmpty\n");
             break;
 
         case NodeType:
