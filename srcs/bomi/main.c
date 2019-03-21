@@ -6,8 +6,7 @@
 #include "compiler.h"
 #include "runtime.h"
 #include "vm.h"
-
-#include "table.h"
+#include "error.h"
 
 static u16char buffer[2048];
 
@@ -24,6 +23,10 @@ u16char *readline(u16char *prompt) {
 void add_history(u16char* unused) {}
 
 void print_node(node_t *node, int indent) {
+    if (node == NULL) {
+        return;
+    }
+
     for (int i = 0; i < indent; i++) {
         wprintf(L"\t");
     }
@@ -57,8 +60,33 @@ void print_node(node_t *node, int indent) {
             wprintf(L" 변수 값 : %ls\n", node->token.str);
             break;
 
+        case NodeVarDecl:
+            wprintf(L"NodeVarDecl\n");
+            break;
+
         case NodeEmpty:
             wprintf(L"NodeEmpty");
+            break;
+
+        case NodeType:
+            wprintf(L"NodeType");
+            switch (node->token.type) {
+                case TokenAutoType:
+                    wprintf(L" \t형: 자동 \n");
+                    break;
+
+                case TokenIntType:
+                    wprintf(L" \t형: 정수 \n");
+                    break;
+
+                case TokenDoubleType:
+                    wprintf(L" \t형: 실수 \n");
+                    break;
+
+                default:
+                    wprintf(L"\n");
+                    break;
+            }
             break;
 
         default:
@@ -166,7 +194,7 @@ int main(void) {
     while (true) {
         reset_error_count();
         
-        u16char *input = readline(L"bom> ");
+        u16char *input = L"ㄱ=10 선언;";//readline(L"bom> ");
         if(wcscmp(input, L"종료") == 0) {
             break;
         }
@@ -182,9 +210,11 @@ int main(void) {
             continue;
         }
 
-#if DEBUG_MODE
+// #if DEBUG_MODE
         print_node(root_node, 0);
-#endif
+// #endif
+
+        return 0;
 
         if (!compile(&compiler, root_node)) {
             continue;
