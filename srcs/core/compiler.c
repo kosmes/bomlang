@@ -17,8 +17,8 @@ static compiler_t *this;
 
 static unsigned char *visit(node_t *node);
 
-static TYPE_IDS check_casting(script_t *target_script, TYPE_IDS origin_type,
-                              TYPE_IDS to_type, bool force);
+static TYPE_ID check_casting(script_t *target_script, TYPE_ID origin_type,
+                              TYPE_ID to_type, bool force);
 
 void init_compiler(compiler_t *compiler) {
     compiler->root_script = malloc(sizeof(script_t));
@@ -245,8 +245,8 @@ bool compile(compiler_t *compiler, node_t *root_node) {
     return true;
 }
 
-static TYPE_IDS check_casting(script_t *target_script, TYPE_IDS origin_type,
-                                TYPE_IDS to_type, bool force) {
+static TYPE_ID check_casting(script_t *target_script, TYPE_ID origin_type,
+                                TYPE_ID to_type, bool force) {
     if (origin_type == TYPE_NONE || to_type == TYPE_NONE) {
         return TYPE_NONE;
     }

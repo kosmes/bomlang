@@ -116,15 +116,15 @@ static double pop_double(vm_t *vm) {
     return data;
 }
 
-static TYPE_IDS cast_stack_2value_equal_from_top(vm_t *vm) {
-    TYPE_IDS first = GET_STACK(vm, 0).type_id;
-    TYPE_IDS second = GET_STACK(vm, 1).type_id;
+static TYPE_ID cast_stack_2value_equal_from_top(vm_t *vm) {
+    TYPE_ID first = GET_STACK(vm, 0).type_id;
+    TYPE_ID second = GET_STACK(vm, 1).type_id;
 
     if (first == second) {
         return first;
     }
 
-    TYPE_IDS result_type = TYPE_NONE;
+    TYPE_ID result_type = TYPE_NONE;
 
     switch (first) {
         case TYPE_INT: {
@@ -159,7 +159,7 @@ static void op_const(vm_t *vm) {
         cvt.as_bytes[i] = NEXT_CODE(vm);
     }
 
-    TYPE_IDS type_id = (TYPE_IDS) vm->data[cvt.as_size++];
+    TYPE_ID type_id = (TYPE_ID) vm->data[cvt.as_size++];
 
     switch (type_id) {
         case TYPE_INT:
@@ -174,7 +174,7 @@ static void op_const(vm_t *vm) {
 }
 
 static void op_store(vm_t *vm) {
-    TYPE_IDS type = GET_STACK(vm, 0).type_id;
+    TYPE_ID type = GET_STACK(vm, 0).type_id;
     converter_t cvt;
     for (int i = 0; i < 8; i++) {
         cvt.as_bytes[i] = NEXT_CODE(vm);
@@ -227,7 +227,7 @@ static void op_load(vm_t *vm) {
 }
 
 static void op_add(vm_t *vm) {
-    TYPE_IDS type = cast_stack_2value_equal_from_top(vm);
+    TYPE_ID type = cast_stack_2value_equal_from_top(vm);
 
     switch (type) {
         case TYPE_INT: {
@@ -248,7 +248,7 @@ static void op_add(vm_t *vm) {
 }
 
 static void op_sub(vm_t *vm) {
-    TYPE_IDS type = cast_stack_2value_equal_from_top(vm);
+    TYPE_ID type = cast_stack_2value_equal_from_top(vm);
 
     switch (type) {
         case TYPE_INT: {
@@ -269,7 +269,7 @@ static void op_sub(vm_t *vm) {
 }
 
 static void op_mul(vm_t *vm) {
-    TYPE_IDS type = cast_stack_2value_equal_from_top(vm);
+    TYPE_ID type = cast_stack_2value_equal_from_top(vm);
 
     switch (type) {
         case TYPE_INT: {
@@ -290,7 +290,7 @@ static void op_mul(vm_t *vm) {
 }
 
 static void op_div(vm_t *vm) {
-    TYPE_IDS type = cast_stack_2value_equal_from_top(vm);
+    TYPE_ID type = cast_stack_2value_equal_from_top(vm);
 
     switch (type) {
         case TYPE_INT: {
@@ -319,7 +319,7 @@ static void op_div(vm_t *vm) {
 }
 
 static void op_invert(vm_t *vm) {
-    TYPE_IDS type = GET_STACK(vm, 0).type_id;
+    TYPE_ID type = GET_STACK(vm, 0).type_id;
     switch (type) {
         case TYPE_INT:
             push_int(vm, -pop_int(vm));
@@ -338,7 +338,7 @@ static void op_return(vm_t *vm) {
 }
 
 static void op_dbg_print(vm_t *vm) {
-    TYPE_IDS code = GET_STACK(vm, 0).type_id;
+    TYPE_ID code = GET_STACK(vm, 0).type_id;
     switch (code) {
         case TYPE_INT:
             wprintf(L"%d\n", pop_int(vm));
@@ -358,7 +358,7 @@ void run_vm(vm_t *vm) {
             break;
         }
 
-        OP_CODES opcode = NEXT_CODE(vm);
+        OP_CODE opcode = NEXT_CODE(vm);
         switch (opcode) {
             case OP_HALT:
                 wprintf(L"프로그램 종료.\n");

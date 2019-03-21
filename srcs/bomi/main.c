@@ -33,7 +33,7 @@ void print_const(script_t *script, size_t *offset) {
     }
 
     size_t addr = cvt.as_size;
-    TYPE_IDS type_id = script->data[addr++];
+    TYPE_ID type_id = script->data[addr++];
     switch(type_id) {
         case TYPE_INT: {
             int data = get_int_from_addr(script, addr);
