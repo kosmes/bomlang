@@ -117,7 +117,7 @@ int main(void) {
     while (true) {
         reset_error_count();
         
-        u16char *input = L"ㄱ=10 선언;";//readline(L"bom> ");
+        u16char *input = readline(L"bom> ");
         if(wcscmp(input, L"종료") == 0) {
             break;
         }
@@ -133,11 +133,9 @@ int main(void) {
             continue;
         }
 
-// #if DEBUG_MODE
+#if DEBUG_MODE
         print_node(root_node, 0);
-// #endif
-
-        return 0;
+#endif
 
         if (!compile(&compiler, root_node)) {
             continue;
@@ -157,5 +155,6 @@ int main(void) {
 
     final_compiler(&compiler);
     final_vm(&vm);
+
     return 0;
 }
