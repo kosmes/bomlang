@@ -65,4 +65,6 @@ DLL_EXPORT node_t *create_node(NODE_TYPES type, token_t token, node_t **child);
  */
 DLL_EXPORT void destroy_node(node_t *node);
 
+DLL_EXPORT void print_node(node_t *node, int indent);
+
 #endif //BOM_NODE_H
