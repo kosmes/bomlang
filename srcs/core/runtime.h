@@ -5,16 +5,22 @@
 #ifndef BOM_OPCODE_H
 #define BOM_OPCODE_H
 
-typedef enum TYPE_IDS TYPE_IDS;
-typedef enum OP_CODES OP_CODES;
+typedef enum TYPE_ID TYPE_ID;
+typedef enum OP_CODE OP_CODE;
 
-enum TYPE_IDS {
+/**
+ * @brief   아무 정보 형이든 다 가질 수 있는 구조체
+ */
+typedef struct var var_t;
+
+enum TYPE_ID {
     TYPE_NONE,
+    TYPE_AUTO,
     TYPE_INT,
     TYPE_DOUBLE,
 };
 
-enum OP_CODES {
+enum OP_CODE {
     OP_HALT,
 
     OP_CONST = 0x10 ,
@@ -43,6 +49,15 @@ enum OP_CODES {
     OP_DBG_PRNIT,
 
     OP_RETURN,
+};
+
+/**
+ * @brief   아무 정보 형이든 다 가질 수 있는 구조체
+ */
+struct var {
+    TYPE_ID type_id;           /* < 변수 종류 */
+    void *data;                 /* < 변수 값 */
+    const u16char *dbg_name;    /* < 디버그용 변수 이름 */
 };
 
 #endif //BOM_OPCODE_H

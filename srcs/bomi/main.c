@@ -6,8 +6,7 @@
 #include "compiler.h"
 #include "runtime.h"
 #include "vm.h"
-
-#include "table.h"
+#include "error.h"
 
 static u16char buffer[2048];
 
@@ -23,54 +22,6 @@ u16char *readline(u16char *prompt) {
 
 void add_history(u16char* unused) {}
 
-void print_node(node_t *node, int indent) {
-    for (int i = 0; i < indent; i++) {
-        wprintf(L"\t");
-    }
-
-    wprintf(L"노드: ");
-    switch(node->type) {
-        case NodeIntegerConstant:
-            wprintf(L"NodeIntegerConstant");
-            wprintf(L" 정수 값: %d\n", node->token.i32);
-            break;
-
-        case NodeFPConstant:
-            wprintf(L"NodeFPConstant");
-            wprintf(L" 실수 값: %lf\n", node->token.f64);
-            break;
-
-        case NodeAssignOp:
-            wprintf(L"NodeAssignOp\n");
-            break;
-
-        case NodeCompound:
-            wprintf(L"NodeCompound\n");
-            break;
-
-        case NodeUnaryOp:
-            wprintf(L"NodeUnaryOp\n");
-            break;
-
-        case NodeVar:
-            wprintf(L"NodeVar");
-            wprintf(L" 변수 값 : %ls\n", node->token.str);
-            break;
-
-        case NodeEmpty:
-            wprintf(L"NodeEmpty");
-            break;
-
-        default:
-            wprintf(L"\n");
-            break;
-    }
-
-    for(int i = 0; i < buf_len(node->child); i++) {
-        print_node(node->child[i], indent + 1);
-    }
-}
-
 #define fetch() script->text[offset++]
 
 void print_const(script_t *script, size_t *offset) {
@@ -82,7 +33,7 @@ void print_const(script_t *script, size_t *offset) {
     }
 
     size_t addr = cvt.as_size;
-    TYPE_IDS type_id = script->data[addr++];
+    TYPE_ID type_id = script->data[addr++];
     switch(type_id) {
         case TYPE_INT: {
             int data = get_int_from_addr(script, addr);
@@ -204,5 +155,6 @@ int main(void) {
 
     final_compiler(&compiler);
     final_vm(&vm);
+
     return 0;
 }

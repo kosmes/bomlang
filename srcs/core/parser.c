@@ -30,9 +30,12 @@ static node_t **statement_list();
 
 static node_t *statement();
 
+static node_t *var_declare();
+
 static node_t *assign();
 
 static node_t *variable();
+
 
 DLL_EXPORT node_t *do_parse(token_t *tokens) {
     if (tokens != NULL) {
@@ -186,11 +189,59 @@ static node_t *statement() {
         last_token = this.tokens[offset];
     }
 
-    if(this.token.type == TokenIdentifier) {
-        return assign();
+    if (this.token.type == TokenIdentifier) {
+        if (last_token.type == TokenVarDecl) {
+            return var_declare();
+        } else {
+            return assign();
+        }
     } else {
         return create_node(NodeEmpty, this.token, NULL);
     }
+}
+
+static node_t *var_declare() {
+    node_t **declare = NULL;
+
+    do {
+        if (this.token.type == TokenComma) {
+            eat(TokenComma, ERR_SEMI_EXPECTED);
+        }
+
+        node_t **child = NULL;
+        buf_push(child, variable());
+
+        if (this.token.type == TokenColon) {
+            eat(TokenColon, ERR_SEMI_EXPECTED);
+            token_t tkn = this.token;
+            if (this.token.type == TokenIntType) {
+                eat(TokenIntType, ERR_SEMI_EXPECTED);
+            } else if (this.token.type == TokenDoubleType) {
+                eat(TokenDoubleType, ERR_SEMI_EXPECTED);
+            } else {
+                eat(TokenNone, ERR_TYPE_EXPECTED);
+            }
+            buf_push(child, create_node(NodeType, tkn, NULL));
+        } else {
+            token_t tkn = {.type=TokenAutoType, .i32=0, .str=NULL, .line=this.token.line};
+            buf_push(child, create_node(NodeType, tkn, NULL));
+        }
+
+        if (this.token.type == TokenAssign) {
+            eat(TokenAssign, ERR_SEMI_EXPECTED);
+            buf_push(child, expr());
+        } else {
+            token_t tkn = {.type=TokenIntegerConstant, .i32=0, .str=NULL, .line=this.token.line};
+            buf_push(child, create_node(NodeIntegerConstant, tkn, NULL));
+        }
+
+        buf_push(declare, create_node(NodeVarDecl, this.token, child));
+
+    } while (this.token.type == TokenComma);
+
+    eat(TokenVarDecl, ERR_SEMI_EXPECTED);
+
+    return create_node(NodeCompound, this.token, declare);
 }
 
 static node_t *assign() {

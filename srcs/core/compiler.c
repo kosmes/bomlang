@@ -17,8 +17,8 @@ static compiler_t *this;
 
 static unsigned char *visit(node_t *node);
 
-static TYPE_IDS check_casting(script_t *target_script, TYPE_IDS origin_type,
-                              TYPE_IDS to_type, bool force);
+static TYPE_ID check_casting(script_t *target_script, TYPE_ID origin_type,
+                              TYPE_ID to_type, bool force);
 
 void init_compiler(compiler_t *compiler) {
     compiler->root_script = malloc(sizeof(script_t));
@@ -130,13 +130,8 @@ static CODE_BUFFER visit_assign_op(node_t *node) {
     table_pair_t *pair = table_find_by_key(this->scope_table, lhs->token.str);
 
     if (pair == NULL) {
-        size_t *slot_ptr = malloc(sizeof(size_t));
-        *(slot_ptr) = this->offset++;
-        if ((pair = table_insert_data(this->scope_table,
-                                      lhs->token.str, slot_ptr)) == NULL) {
-            error(ERR_ERROR);
-            return NULL;
-        }
+        error(ERR_UNDEF_VAR);
+        return NULL;
     }
 
     size_t slot = *((size_t *) pair->data);
@@ -184,6 +179,58 @@ static CODE_BUFFER visit_var(node_t *node) {
     VISIT_RETURN;
 }
 
+static CODE_BUFFER visit_var_decl(node_t *node) {
+    VISIT_PREPARE;
+
+    node_t *var_node = node->child[0];
+    node_t *type_node = node->child[1];
+    node_t *init_node = node->child[2];
+
+    if (var_node->type != NodeVar) {
+        // #todo: Update error message to invalid decl
+        error(ERR_SYNTAX);
+        return NULL;
+    }
+
+    table_pair_t *pair = table_find_by_key(this->scope_table, var_node->token.str);
+
+    if (pair != NULL) {
+        error(ERR_DUPLE_VAR);
+        return NULL;
+    } else {
+        size_t *slot_ptr = malloc(sizeof(size_t));
+        *(slot_ptr) = this->offset++;
+        if ((pair = table_insert_data(this->scope_table,
+                                      var_node->token.str, slot_ptr)) == NULL) {
+            error(ERR_ERROR);
+            return NULL;
+        }
+    }
+
+    size_t slot = *((size_t *) pair->data);
+
+    CODE_BUFFER init_codes = visit(init_node);
+
+    COMBINE_BUFFER(codes, init_codes);
+
+    buf_push(codes, OP_STORE);
+
+    converter_t cvt;
+    cvt.as_size = slot;
+
+    for (int i = 0; i < 8; i++) {
+        buf_push(codes, cvt.as_bytes[i]);
+    }
+
+    buf_push(codes, OP_LOAD);
+
+    for (int i = 0; i < 8; i++) {
+        buf_push(codes, cvt.as_bytes[i]);
+    }
+
+    VISIT_RETURN;
+}
+
 static CODE_BUFFER visit_compound(node_t *node) {
     VISIT_PREPARE;
 
@@ -212,6 +259,9 @@ static CODE_BUFFER visit(node_t *node) {
 
         case NodeAssignOp:
             return visit_assign_op(node);
+
+        case NodeVarDecl:
+            return visit_var_decl(node);
 
         case NodeVar:
             return visit_var(node);
@@ -245,8 +295,8 @@ bool compile(compiler_t *compiler, node_t *root_node) {
     return true;
 }
 
-static TYPE_IDS check_casting(script_t *target_script, TYPE_IDS origin_type,
-                                TYPE_IDS to_type, bool force) {
+static TYPE_ID check_casting(script_t *target_script, TYPE_ID origin_type,
+                                TYPE_ID to_type, bool force) {
     if (origin_type == TYPE_NONE || to_type == TYPE_NONE) {
         return TYPE_NONE;
     }
