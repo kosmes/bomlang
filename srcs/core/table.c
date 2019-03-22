@@ -58,7 +58,7 @@ TablePair *TableGetData(Table *table, const u16char *key) {
 TablePair *TableSetData(Table *table, const u16char *key, void *data) {
     if (table->cap <= 0) {
         Error(ERR_INVALID_INDEX);
-        return false;
+        return NULL;
     }
 
     size_t addr = hash_string(key) % table->cap;
