@@ -12,17 +12,17 @@
 /**
  * @brief   노드 종류들을 모아놓은 열거형
  */
-typedef enum NODE_TYPES NODE_TYPES;
+typedef enum NODE_TYPE NODE_TYPE;
 
 /**
  * @brief   트리형으로 구성된 AST 노드
  */
-typedef struct node node_t;
+typedef struct node Node;
 
 /**
  * @brief   노드 종류들을 모아놓은 열거형
  */
-enum NODE_TYPES {
+enum NODE_TYPE {
     NodeIntegerConstant,    /* < 정수 상수 */
     NodeFPConstant,         /* < 실수 상수 */
 
@@ -45,9 +45,9 @@ enum NODE_TYPES {
  * @brief   트리형으로 구성된 AST 노드
  */
 struct node {
-    NODE_TYPES type;    /* < 노드의 종류 */
+    NODE_TYPE type;    /* < 노드의 종류 */
     Token token;      /* < 노드의 토큰 */
-    node_t **child;     /* < 노드의 자식들 */
+    Node **child;     /* < 노드의 자식들 */
 };
 
 /**
@@ -57,14 +57,14 @@ struct node {
  * @param   child   노드의 자식들
  * @return  생성된 노드
  */
-DLL_EXPORT node_t *NodeCreate(NODE_TYPES type, Token token, node_t **child);
+DLL_EXPORT Node *NodeCreate(NODE_TYPE type, Token token, Node **child);
 
 /**
  * @brief   노드의 자식들을 삭제하고 파괴한다
  * @param   node    파괴할 노드
  */
-DLL_EXPORT void NodeDestroy(node_t *node);
+DLL_EXPORT void NodeDestroy(Node *node);
 
-DLL_EXPORT void NodePrint(node_t *node, int indent);
+DLL_EXPORT void NodePrint(Node *node, int indent);
 
 #endif //BOM_NODE_H

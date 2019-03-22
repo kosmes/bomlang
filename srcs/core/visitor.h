@@ -12,7 +12,7 @@ typedef struct visit_result visit_result_t;
 
 struct visit_result {
     Script *script;
-    TYPE_ID type_id;
+    TYPE_ID typeId;
 };
 
 #endif //BOM_BUILDER_H

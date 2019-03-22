@@ -15,33 +15,33 @@
 
 static Compiler *this;
 
-static unsigned char *visit(node_t *node);
+static unsigned char *visit(Node *node);
 
 static TYPE_ID checkCasting(Script *target_script, TYPE_ID origin_type,
                             TYPE_ID to_type, bool force);
 
 void CompilerInit(Compiler *compiler) {
-    compiler->root_script = malloc(sizeof(Script));
-    ScriptInit(compiler->root_script);
+    compiler->rootScript = malloc(sizeof(Script));
+    ScriptInit(compiler->rootScript);
 
-    compiler->scope_table = malloc(sizeof(Table));
-    TableInit(compiler->scope_table);
+    compiler->scopeTable = malloc(sizeof(Table));
+    TableInit(compiler->scopeTable);
 
     compiler->offset = 0;
 }
 
 void CompilerFinal(Compiler *compiler) {
-    TableFinal(compiler->scope_table);
-    ScriptFinal(compiler->root_script);
+    TableFinal(compiler->scopeTable);
+    ScriptFinal(compiler->rootScript);
 }
 
-static CODE_BUFFER visitIntegerConstant(node_t *node) {
+static CODE_BUFFER visitIntegerConstant(Node *node) {
     VISIT_PREPARE;
 
     buf_push(codes, OP_CONST);
 
     Converter cvt;
-    cvt.as_size = ScriptAddIntAndReturnAddr(this->root_script, node->token.i32);
+    cvt.as_size = ScriptAddIntAndReturnAddr(this->rootScript, node->token.i32);
 
     for (int i = 0; i < 8; i++) {
         buf_push(codes, cvt.as_bytes[i]);
@@ -50,13 +50,13 @@ static CODE_BUFFER visitIntegerConstant(node_t *node) {
     VISIT_RETURN;
 }
 
-static CODE_BUFFER visitFPConstant(node_t *node) {
+static CODE_BUFFER visitFPConstant(Node *node) {
     VISIT_PREPARE;
 
     buf_push(codes, OP_CONST);
 
     Converter cvt;
-    cvt.as_size = ScriptAddDoubleAndReturnAddr(this->root_script, node->token.f64);
+    cvt.as_size = ScriptAddDoubleAndReturnAddr(this->rootScript, node->token.f64);
 
     for (int i = 0; i < 8; i++) {
         buf_push(codes, cvt.as_bytes[i]);
@@ -65,11 +65,11 @@ static CODE_BUFFER visitFPConstant(node_t *node) {
     VISIT_RETURN;
 }
 
-static CODE_BUFFER visitBinOp(node_t *node) {
+static CODE_BUFFER visitBinOp(Node *node) {
     VISIT_PREPARE;
 
-    node_t *lhs = node->child[0];
-    node_t *rhs = node->child[1];
+    Node *lhs = node->child[0];
+    Node *rhs = node->child[1];
 
     if (lhs == NULL || rhs == NULL) {
         ErrorLine(ERR_NO_EXPR, node->token.line);
@@ -102,7 +102,7 @@ static CODE_BUFFER visitBinOp(node_t *node) {
     VISIT_RETURN;
 }
 
-static CODE_BUFFER visitUnaryOp(node_t *node) {
+static CODE_BUFFER visitUnaryOp(Node *node) {
     VISIT_PREPARE;
 
     CODE_BUFFER visit_codes = visit(node->child[0]);
@@ -116,18 +116,18 @@ static CODE_BUFFER visitUnaryOp(node_t *node) {
     VISIT_RETURN;
 }
 
-static CODE_BUFFER visitAssignOp(node_t *node) {
+static CODE_BUFFER visitAssignOp(Node *node) {
     VISIT_PREPARE;
 
-    node_t *lhs = node->child[0];
-    node_t *rhs = node->child[1];
+    Node *lhs = node->child[0];
+    Node *rhs = node->child[1];
 
     if (lhs == NULL || rhs == NULL) {
         ErrorLine(ERR_NO_EXPR, node->token.line);
         return NULL;
     }
 
-    TablePair *pair = TableGetData(this->scope_table, lhs->token.str);
+    TablePair *pair = TableGetData(this->scopeTable, lhs->token.str);
 
     if (pair == NULL) {
         Error(ERR_UNDEF_VAR);
@@ -158,10 +158,10 @@ static CODE_BUFFER visitAssignOp(node_t *node) {
     VISIT_RETURN;
 }
 
-static CODE_BUFFER visitVar(node_t *node) {
+static CODE_BUFFER visitVar(Node *node) {
     VISIT_PREPARE;
 
-    TablePair *pair = TableGetData(this->scope_table,
+    TablePair *pair = TableGetData(this->scopeTable,
                                    node->token.str);
 
     if (pair == NULL) {
@@ -179,12 +179,12 @@ static CODE_BUFFER visitVar(node_t *node) {
     VISIT_RETURN;
 }
 
-static CODE_BUFFER visitVarDecl(node_t *node) {
+static CODE_BUFFER visitVarDecl(Node *node) {
     VISIT_PREPARE;
 
-    node_t *var_node = node->child[0];
-    node_t *type_node = node->child[1];
-    node_t *init_node = node->child[2];
+    Node *var_node = node->child[0];
+    Node *type_node = node->child[1];
+    Node *init_node = node->child[2];
 
     if (var_node->type != NodeVar) {
         // #todo: Update error message to invalid decl
@@ -192,7 +192,7 @@ static CODE_BUFFER visitVarDecl(node_t *node) {
         return NULL;
     }
 
-    TablePair *pair = TableGetData(this->scope_table, var_node->token.str);
+    TablePair *pair = TableGetData(this->scopeTable, var_node->token.str);
 
     if (pair != NULL) {
         Error(ERR_DUPLE_VAR);
@@ -200,7 +200,7 @@ static CODE_BUFFER visitVarDecl(node_t *node) {
     } else {
         size_t *slot_ptr = malloc(sizeof(size_t));
         *(slot_ptr) = this->offset++;
-        if ((pair = TableSetData(this->scope_table,
+        if ((pair = TableSetData(this->scopeTable,
                                  var_node->token.str, slot_ptr)) == NULL) {
             Error(ERR_ERROR);
             return NULL;
@@ -231,7 +231,7 @@ static CODE_BUFFER visitVarDecl(node_t *node) {
     VISIT_RETURN;
 }
 
-static CODE_BUFFER visitCompound(node_t *node) {
+static CODE_BUFFER visitCompound(Node *node) {
     VISIT_PREPARE;
 
     size_t len = buf_len(node->child);
@@ -243,7 +243,7 @@ static CODE_BUFFER visitCompound(node_t *node) {
     VISIT_RETURN;
 }
 
-static CODE_BUFFER visit(node_t *node) {
+static CODE_BUFFER visit(Node *node) {
     switch (node->type) {
         case NodeIntegerConstant:
             return visitIntegerConstant(node);
@@ -275,7 +275,7 @@ static CODE_BUFFER visit(node_t *node) {
     }
 }
 
-bool CompilerTryCompile(Compiler *compiler, node_t *root_node) {
+bool CompilerTryCompile(Compiler *compiler, Node *root_node) {
     this = compiler;
 
 
@@ -287,10 +287,10 @@ bool CompilerTryCompile(Compiler *compiler, node_t *root_node) {
         return false;
     }
 
-    COMBINE_BUFFER(this->root_script->text, result);
+    COMBINE_BUFFER(this->rootScript->text, result);
 
-    buf_push(this->root_script->text, OP_DBG_PRNIT);
-    buf_push(this->root_script->text, OP_RETURN);
+    buf_push(this->rootScript->text, OP_DBG_PRNIT);
+    buf_push(this->rootScript->text, OP_RETURN);
 
     return true;
 }

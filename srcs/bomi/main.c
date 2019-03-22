@@ -29,10 +29,10 @@ int main(void) {
     wprintf(L"종료하려면 Ctrl+C를 누르거나 '종료'를 입력하세요.\n");
 
     Compiler compiler;
-    vm_t vm;
+    Machine vm;
 
     CompilerInit(&compiler);
-    init_vm(&vm);
+    MachineInit(&vm);
 
     while (true) {
         ErrorResetCount();
@@ -47,14 +47,14 @@ int main(void) {
             continue;
         }
 
-        node_t *root_node = ParserDoParse(tokens);
+        Node *root_node = ParserDoParse(tokens);
 
         if (root_node == NULL) {
             continue;
         }
 
 #if DEBUG_MODE
-        print_node(root_node, 0);
+        NodePrint(root_node, 0);
 #endif
 
         if (!CompilerTryCompile(&compiler, root_node)) {
@@ -64,17 +64,17 @@ int main(void) {
         NodeDestroy(root_node);
 
 #if DEBUG_MODE
-        print_script(compiler.root_script);
+        ScriptPrint(compiler.rootScript);
 #endif
 
-        set_script(&vm, compiler.root_script);
-        ScriptFinal(compiler.root_script);
+        MachineSetScript(&vm, compiler.rootScript);
+        ScriptFinal(compiler.rootScript);
 
-        run_vm(&vm);
+        MachineRun(&vm);
     }
 
     CompilerFinal(&compiler);
-    final_vm(&vm);
+    MachineFinal(&vm);
 
     return 0;
 }

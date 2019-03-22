@@ -18,7 +18,7 @@
 
 #define GET_STACK(vm, offset) ((vm)->stack[(vm)->reg[REG_STACK_POINTER] - offset - 1])
 
-void init_vm(vm_t *vm) {
+void MachineInit(Machine *vm) {
     vm->reg[REG_PROGRAM_CODE] = 0;
     vm->reg[REG_FRAME_POINTER] = 0;
     vm->reg[REG_STACK_POINTER] = 0;
@@ -28,15 +28,15 @@ void init_vm(vm_t *vm) {
     vm->text = NULL;
 
     for (int i = 0; i < STACK_SIZE; i++) {
-        vm->stack[i].type_id = TYPE_NONE;
+        vm->stack[i].typeId = TYPE_NONE;
         vm->stack[i].data = NULL;
 
-        vm->local[i].type_id = TYPE_NONE;
+        vm->local[i].typeId = TYPE_NONE;
         vm->local[i].data = NULL;
     }
 }
 
-void final_vm(vm_t *vm) {
+void MachineFinal(Machine *vm) {
     buf_free(vm->data);
     buf_free(vm->text);
 
@@ -47,7 +47,7 @@ void final_vm(vm_t *vm) {
     }
 }
 
-void set_script(vm_t *vm, Script *script) {
+void MachineSetScript(Machine *vm, Script *script) {
     ScriptFinal(&vm->script);
     vm->reg[REG_PROGRAM_CODE] = 0;
 
@@ -60,7 +60,7 @@ void set_script(vm_t *vm, Script *script) {
     }
 }
 
-static void push_int(vm_t *vm, int data) {
+static void push_int(Machine *vm, int data) {
     CHECK_STACK_OVERFLOW(vm, 1);
 
     Var var = vm->stack[vm->reg[REG_STACK_POINTER]];
@@ -69,13 +69,13 @@ static void push_int(vm_t *vm, int data) {
     }
     var.data = malloc(sizeof(int));
     memcpy(var.data, &data, sizeof(int));
-    var.type_id = TYPE_INT;
+    var.typeId = TYPE_INT;
     vm->stack[vm->reg[REG_STACK_POINTER]] = var;
 
     vm->reg[REG_STACK_POINTER]++;
 }
 
-static void push_double(vm_t *vm, double data) {
+static void push_double(Machine *vm, double data) {
     CHECK_STACK_OVERFLOW(vm, 1);
 
     Var var = vm->stack[vm->reg[REG_STACK_POINTER]];
@@ -84,13 +84,13 @@ static void push_double(vm_t *vm, double data) {
     }
     var.data = malloc(sizeof(double));
     memcpy(var.data, &data, sizeof(double));
-    var.type_id = TYPE_DOUBLE;
+    var.typeId = TYPE_DOUBLE;
     vm->stack[vm->reg[REG_STACK_POINTER]] = var;
 
     vm->reg[REG_STACK_POINTER]++;
 }
 
-static int pop_int(vm_t *vm) {
+static int pop_int(Machine *vm) {
     CHECK_STACK_UNDERFLOW(vm, 1);
 
     vm->reg[REG_STACK_POINTER]--;
@@ -103,7 +103,7 @@ static int pop_int(vm_t *vm) {
     return data;
 }
 
-static double pop_double(vm_t *vm) {
+static double pop_double(Machine *vm) {
     CHECK_STACK_UNDERFLOW(vm, 1);
 
     vm->reg[REG_STACK_POINTER]--;
@@ -116,9 +116,9 @@ static double pop_double(vm_t *vm) {
     return data;
 }
 
-static TYPE_ID cast_stack_2value_equal_from_top(vm_t *vm) {
-    TYPE_ID first = GET_STACK(vm, 0).type_id;
-    TYPE_ID second = GET_STACK(vm, 1).type_id;
+static TYPE_ID cast_stack_2value_equal_from_top(Machine *vm) {
+    TYPE_ID first = GET_STACK(vm, 0).typeId;
+    TYPE_ID second = GET_STACK(vm, 1).typeId;
 
     if (first == second) {
         return first;
@@ -152,7 +152,7 @@ static TYPE_ID cast_stack_2value_equal_from_top(vm_t *vm) {
     return result_type;
 }
 
-static void op_const(vm_t *vm) {
+static void op_const(Machine *vm) {
     Converter cvt;
     cvt.asDouble = 0;
     for (int i = 0; i < 8; i++) {
@@ -173,8 +173,8 @@ static void op_const(vm_t *vm) {
     }
 }
 
-static void op_store(vm_t *vm) {
-    TYPE_ID type = GET_STACK(vm, 0).type_id;
+static void op_store(Machine *vm) {
+    TYPE_ID type = GET_STACK(vm, 0).typeId;
     Converter cvt;
     for (int i = 0; i < 8; i++) {
         cvt.as_bytes[i] = NEXT_CODE(vm);
@@ -190,14 +190,14 @@ static void op_store(vm_t *vm) {
             int data = pop_int(vm);
             var.data = malloc(sizeof(int));
             memcpy(var.data, &data, sizeof(int));
-            var.type_id = TYPE_INT;
+            var.typeId = TYPE_INT;
             break;
         }
         case TYPE_DOUBLE: {
             double data = pop_double(vm);
             var.data = malloc(sizeof(double));
             memcpy(var.data, &data, sizeof(double));
-            var.type_id = TYPE_DOUBLE;
+            var.typeId = TYPE_DOUBLE;
             break;
         }
         default:
@@ -207,14 +207,14 @@ static void op_store(vm_t *vm) {
     vm->local[addr] = var;
 }
 
-static void op_load(vm_t *vm) {
+static void op_load(Machine *vm) {
     Converter cvt;
     for (int i = 0; i < 8; i++) {
         cvt.as_bytes[i] = NEXT_CODE(vm);
     }
     size_t addr = cvt.as_size;
     Var var = vm->local[addr];
-    switch (var.type_id) {
+    switch (var.typeId) {
         case TYPE_INT:
             push_int(vm, *((int *) var.data));
             break;
@@ -226,7 +226,7 @@ static void op_load(vm_t *vm) {
     }
 }
 
-static void op_add(vm_t *vm) {
+static void op_add(Machine *vm) {
     TYPE_ID type = cast_stack_2value_equal_from_top(vm);
 
     switch (type) {
@@ -247,7 +247,7 @@ static void op_add(vm_t *vm) {
     }
 }
 
-static void op_sub(vm_t *vm) {
+static void op_sub(Machine *vm) {
     TYPE_ID type = cast_stack_2value_equal_from_top(vm);
 
     switch (type) {
@@ -268,7 +268,7 @@ static void op_sub(vm_t *vm) {
     }
 }
 
-static void op_mul(vm_t *vm) {
+static void op_mul(Machine *vm) {
     TYPE_ID type = cast_stack_2value_equal_from_top(vm);
 
     switch (type) {
@@ -289,7 +289,7 @@ static void op_mul(vm_t *vm) {
     }
 }
 
-static void op_div(vm_t *vm) {
+static void op_div(Machine *vm) {
     TYPE_ID type = cast_stack_2value_equal_from_top(vm);
 
     switch (type) {
@@ -318,8 +318,8 @@ static void op_div(vm_t *vm) {
     }
 }
 
-static void op_invert(vm_t *vm) {
-    TYPE_ID type = GET_STACK(vm, 0).type_id;
+static void op_invert(Machine *vm) {
+    TYPE_ID type = GET_STACK(vm, 0).typeId;
     switch (type) {
         case TYPE_INT:
             push_int(vm, -pop_int(vm));
@@ -333,12 +333,12 @@ static void op_invert(vm_t *vm) {
     }
 }
 
-static void op_return(vm_t *vm) {
+static void op_return(Machine *vm) {
 
 }
 
-static void op_dbg_print(vm_t *vm) {
-    TYPE_ID code = GET_STACK(vm, 0).type_id;
+static void op_dbg_print(Machine *vm) {
+    TYPE_ID code = GET_STACK(vm, 0).typeId;
     switch (code) {
         case TYPE_INT:
             wprintf(L"%d\n", pop_int(vm));
@@ -349,7 +349,7 @@ static void op_dbg_print(vm_t *vm) {
     }
 }
 
-void run_vm(vm_t *vm) {
+void MachineRun(Machine *vm) {
     bool running = true;
 
     do {

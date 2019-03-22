@@ -16,28 +16,28 @@ struct parser {
 
 static Parser this;
 
-static node_t *level1();
+static Node *level1();
 
-static node_t *level3();
+static Node *level3();
 
-static node_t *level4();
+static Node *level4();
 
-static node_t *expr();
+static Node *expr();
 
-static node_t *compound();
+static Node *compound();
 
-static node_t **statementList();
+static Node **statementList();
 
-static node_t *statement();
+static Node *statement();
 
-static node_t *var_declare();
+static Node *var_declare();
 
-static node_t *assign();
+static Node *assign();
 
-static node_t *variable();
+static Node *variable();
 
 
-DLL_EXPORT node_t *ParserDoParse(Token *tokens) {
+DLL_EXPORT Node *ParserDoParse(Token *tokens) {
     if (tokens != NULL) {
 
         this.tokens = tokens;
@@ -48,7 +48,7 @@ DLL_EXPORT node_t *ParserDoParse(Token *tokens) {
         return NULL;
     }
 
-    node_t *root_node = compound();
+    Node *root_node = compound();
     if (this.token.type != TokenEndOfFile) {
         ErrorLine(ERR_SYNTAX, this.token.line);
     }
@@ -76,8 +76,8 @@ static void eat(TOKEN_TYPE type, enum ERROR_CODE errcode) {
     }
 }
 
-static node_t *level1() {
-    node_t **child = NULL;
+static Node *level1() {
+    Node **child = NULL;
     Token tkn = this.token;
     if (this.token.type == TokenPlus) {
         eat(TokenPlus, ERR_SYNTAX);
@@ -95,7 +95,7 @@ static node_t *level1() {
         return NodeCreate(NodeFPConstant, tkn, NULL);
     } else if (this.token.type == TokenLeftParen) {
         eat(TokenLeftParen, ERR_SYNTAX);
-        node_t *node = expr();
+        Node *node = expr();
         eat(TokenRightParen, ERR_UNBAL_PARENS);
         return node;
     } else {
@@ -105,8 +105,8 @@ static node_t *level1() {
     return NULL;
 }
 
-static node_t *level3() {
-    node_t *node = level1();
+static Node *level3() {
+    Node *node = level1();
 
     while (this.token.type == TokenAbsterisk ||
            this.token.type == TokenSlash) {
@@ -117,7 +117,7 @@ static node_t *level3() {
             eat(TokenSlash, ERR_SYNTAX);
         }
 
-        node_t **child = NULL;
+        Node **child = NULL;
         buf_push(child, node);
         buf_push(child, level1());
 
@@ -127,8 +127,8 @@ static node_t *level3() {
     return node;
 }
 
-static node_t *level4() {
-    node_t *node = level3();
+static Node *level4() {
+    Node *node = level3();
 
     while (this.token.type == TokenPlus ||
            this.token.type == TokenMinus) {
@@ -139,7 +139,7 @@ static node_t *level4() {
             eat(TokenMinus, ERR_SYNTAX);
         }
 
-        node_t **child = NULL;
+        Node **child = NULL;
         buf_push(child, node);
         buf_push(child, level3());
 
@@ -149,16 +149,16 @@ static node_t *level4() {
     return node;
 }
 
-static node_t *expr() {
+static Node *expr() {
     return level4();
 }
 
-static node_t *compound() {
+static Node *compound() {
     return NodeCreate(NodeCompound, TokenCreate(TokenNone, 0), statementList());
 }
 
-static node_t **statementList() {
-    node_t **result = NULL;
+static Node **statementList() {
+    Node **result = NULL;
     buf_push(result, statement());
 
     while (this.token.type == TokenSemicolon) {
@@ -173,7 +173,7 @@ static node_t **statementList() {
     return result;
 }
 
-static node_t *statement() {
+static Node *statement() {
     size_t offset = this.pos;
     Token last_token;
     while (buf_len(this.tokens) > offset) {
@@ -200,15 +200,15 @@ static node_t *statement() {
     }
 }
 
-static node_t *var_declare() {
-    node_t **declare = NULL;
+static Node *var_declare() {
+    Node **declare = NULL;
 
     do {
         if (this.token.type == TokenComma) {
             eat(TokenComma, ERR_SEMI_EXPECTED);
         }
 
-        node_t **child = NULL;
+        Node **child = NULL;
         buf_push(child, variable());
 
         if (this.token.type == TokenColon) {
@@ -244,8 +244,8 @@ static node_t *var_declare() {
     return NodeCreate(NodeCompound, this.token, declare);
 }
 
-static node_t *assign() {
-    node_t **child = NULL;
+static Node *assign() {
+    Node **child = NULL;
     buf_push(child, variable());
     Token tkn = this.token;
     eat(TokenAssign, ERR_SYNTAX);
@@ -253,8 +253,8 @@ static node_t *assign() {
     return NodeCreate(NodeAssignOp, tkn, child);
 }
 
-static node_t *variable() {
-    node_t *node = NodeCreate(NodeVar, this.token, NULL);
+static Node *variable() {
+    Node *node = NodeCreate(NodeVar, this.token, NULL);
     eat(TokenIdentifier, ERR_SYNTAX);
     return node;
 }
