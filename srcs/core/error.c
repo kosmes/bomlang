@@ -24,20 +24,20 @@ const u16char *errstr[] = {
         L"재 선언된 변수입니다.",
 };
 
-void error(enum ERROR_CODE err) {
+void Error(enum ERROR_CODE err) {
     err_count++;
     wprintf(L"오류 %ls\n", errstr[err]);
 }
 
-void error_line(enum ERROR_CODE err, unsigned int line) {
+void ErrorLine(enum ERROR_CODE err, unsigned int line) {
     err_count++;
     wprintf(L"오류 [ %d 줄 ] %ls\n", line, errstr[err]);
 }
 
-void reset_error_count() {
+void ErrorResetCount() {
     err_count = 0;
 }
 
-unsigned short get_error_count() {
+unsigned short ErrorGetCount() {
     return err_count;
 }

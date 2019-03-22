@@ -13,6 +13,6 @@
  * @param text  토큰을 얻을 문자열
  * @return  토큰 리스트
  */
-DLL_EXPORT token_t* get_tokens(wchar_t *text);
+DLL_EXPORT Token* SyntaxGetTokens(wchar_t *text);
 
 #endif //BOM_SYNTAX_H

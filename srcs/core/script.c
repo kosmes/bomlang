@@ -6,12 +6,12 @@
 #include "buf.h"
 #include "runtime.h"
 
-void init_script(script_t *script) {
+void ScriptInit(Script *script) {
     script->text = NULL;
     script->data = NULL;
 }
 
-DLL_EXPORT void final_script(script_t *script) {
+DLL_EXPORT void ScriptFinal(Script *script) {
     buf_free(script->data);
     buf_free(script->text);
 
@@ -19,8 +19,8 @@ DLL_EXPORT void final_script(script_t *script) {
     script->data = NULL;
 }
 
-size_t add_int_and_return_addr(script_t *script, int data) {
-    converter_t cvt;
+size_t ScriptAddIntAndReturnAddr(Script *script, int data) {
+    Converter cvt;
     cvt.as_integer = data;
 
     size_t addr = buf_len(script->data);
@@ -34,8 +34,8 @@ size_t add_int_and_return_addr(script_t *script, int data) {
     return addr;
 }
 
-size_t add_double_and_return_addr(script_t *script, double data) {
-    converter_t cvt;
+size_t ScriptAddDoubleAndReturnAddr(Script *script, double data) {
+    Converter cvt;
     cvt.asDouble = data;
 
     size_t addr = buf_len(script->data);
@@ -49,11 +49,11 @@ size_t add_double_and_return_addr(script_t *script, double data) {
     return addr;
 }
 
-size_t add_string_and_return_addr(script_t *script, const wchar_t *data) {
+size_t ScriptAddStringAndReturnAddr(Script *script, const wchar_t *data) {
     short len = (short) wcslen(data);
     size_t addr = (size_t) buf_len(script->data);
 
-    converter_t cvt;
+    Converter cvt;
     cvt.as_integer = len;
 
     // buf_push(script->data, TYPE_STRING);
@@ -71,9 +71,9 @@ size_t add_string_and_return_addr(script_t *script, const wchar_t *data) {
     return addr;
 }
 
-int get_int_from_addr(script_t *script, size_t addr) {
+int ScriptGetIntFromAddr(Script *script, size_t addr) {
     size_t offset = addr;
-    converter_t cvt;
+    Converter cvt;
     cvt.asDouble = 0;
 
     for (int i = 0; i < 4; i++) {
@@ -83,9 +83,9 @@ int get_int_from_addr(script_t *script, size_t addr) {
     return cvt.as_integer;
 }
 
-double get_double_from_addr(script_t *script, size_t addr) {
+double ScriptGetDoubleFromAddr(Script *script, size_t addr) {
     size_t offset = addr;
-    converter_t cvt;
+    Converter cvt;
     cvt.asDouble = 0;
 
     for (int i = 0; i < 8; i++) {
@@ -95,11 +95,11 @@ double get_double_from_addr(script_t *script, size_t addr) {
     return cvt.asDouble;
 }
 
-const wchar_t *get_string_from_addr(script_t *script, size_t addr) {
+const wchar_t *ScriptGetStringFromAddr(Script *script, size_t addr) {
     size_t offset = addr;
     short len = 0;
 
-    converter_t cvt;
+    Converter cvt;
     cvt.asDouble = 0;
 
     for (int i = 0; i < 2; i++) {

@@ -11,7 +11,7 @@ typedef enum OP_CODE OP_CODE;
 /**
  * @brief   아무 정보 형이든 다 가질 수 있는 구조체
  */
-typedef struct var var_t;
+typedef struct var Var;
 
 enum TYPE_ID {
     TYPE_NONE,

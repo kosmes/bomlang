@@ -5,7 +5,7 @@
 #include "node.h"
 #include "buf.h"
 
-DLL_EXPORT node_t *create_node(NODE_TYPES type, token_t token, node_t **child) {
+DLL_EXPORT node_t *NodeCreate(NODE_TYPES type, Token token, node_t **child) {
     node_t *node = malloc(sizeof(node_t));
 
     node->type = type;
@@ -15,15 +15,15 @@ DLL_EXPORT node_t *create_node(NODE_TYPES type, token_t token, node_t **child) {
     return node;
 }
 
-DLL_EXPORT void destroy_node(node_t *node) {
+DLL_EXPORT void NodeDestroy(node_t *node) {
     for (int i = 0; i < buf_len(node->child); i++) {
-        destroy_node(node->child[i]);
+        NodeDestroy(node->child[i]);
     }
 
-    destroy_token(&node->token);
+    TokenDestroy(&node->token);
 }
 
-void print_node(node_t *node, int indent) {
+void NodePrint(node_t *node, int indent) {
     if (node == NULL) {
         return;
     }
@@ -96,6 +96,6 @@ void print_node(node_t *node, int indent) {
     }
 
     for(int i = 0; i < buf_len(node->child); i++) {
-        print_node(node->child[i], indent + 1);
+        NodePrint(node->child[i], indent + 1);
     }
 }

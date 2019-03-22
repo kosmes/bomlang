@@ -11,7 +11,7 @@
 typedef struct visit_result visit_result_t;
 
 struct visit_result {
-    script_t *script;
+    Script *script;
     TYPE_ID type_id;
 };
 

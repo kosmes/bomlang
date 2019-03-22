@@ -24,8 +24,8 @@ void add_history(u16char* unused) {}
 
 #define fetch() script->text[offset++]
 
-void print_const(script_t *script, size_t *offset) {
-    converter_t cvt;
+void print_const(Script *script, size_t *offset) {
+    Converter cvt;
     cvt.asDouble = 0;
 
     for (int i = 0; i < 8; i++) {
@@ -36,11 +36,11 @@ void print_const(script_t *script, size_t *offset) {
     TYPE_ID type_id = script->data[addr++];
     switch(type_id) {
         case TYPE_INT: {
-            int data = get_int_from_addr(script, addr);
+            int data = ScriptGetIntFromAddr(script, addr);
             wprintf(L"\tvalue: %d ", data);
         } break;
         case TYPE_DOUBLE: {
-            double data = get_double_from_addr(script, addr);
+            double data = ScriptGetDoubleFromAddr(script, addr);
             wprintf(L"\tvalue: %f ", data);
         } break;
         default:
@@ -48,7 +48,7 @@ void print_const(script_t *script, size_t *offset) {
     }
 }
 
-void print_script(script_t *script) {
+void print_script(Script *script) {
     size_t len = buf_len(script->text);
     size_t offset = 0;
     while(offset < len) {
@@ -60,7 +60,7 @@ void print_script(script_t *script) {
             } break;
             case OP_STORE: {
                 wprintf(L"store ");
-                converter_t cvt;
+                Converter cvt;
                 cvt.asDouble = 0;
                 for (int i = 0; i < 8; i++) {
                     cvt.as_bytes[i] = fetch();
@@ -70,7 +70,7 @@ void print_script(script_t *script) {
             } break;
             case OP_LOAD: {
                 wprintf(L"load ");
-                converter_t cvt;
+                Converter cvt;
                 cvt.asDouble = 0;
                 for (int i = 0; i < 8; i++) {
                     cvt.as_bytes[i] = fetch();
@@ -108,26 +108,26 @@ int main(void) {
     wprintf(L"봄 인터프리터 0.0.2 베타 버전\n");
     wprintf(L"종료하려면 Ctrl+C를 누르거나 '종료'를 입력하세요.\n");
 
-    compiler_t compiler;
+    Compiler compiler;
     vm_t vm;
 
-    init_compiler(&compiler);
+    CompilerInit(&compiler);
     init_vm(&vm);
 
     while (true) {
-        reset_error_count();
+        ErrorResetCount();
         
         u16char *input = readline(L"bom> ");
         if(wcscmp(input, L"종료") == 0) {
             break;
         }
 
-        token_t *tokens = get_tokens(input);
+        Token *tokens = SyntaxGetTokens(input);
         if (tokens == NULL) {
             continue;
         }
 
-        node_t *root_node = do_parse(tokens);
+        node_t *root_node = ParserDoParse(tokens);
 
         if (root_node == NULL) {
             continue;
@@ -137,23 +137,23 @@ int main(void) {
         print_node(root_node, 0);
 #endif
 
-        if (!compile(&compiler, root_node)) {
+        if (!CompilerTryCompile(&compiler, root_node)) {
             continue;
         }
 
-        destroy_node(root_node);
+        NodeDestroy(root_node);
 
 #if DEBUG_MODE
         print_script(compiler.root_script);
 #endif
 
         set_script(&vm, compiler.root_script);
-        final_script(compiler.root_script);
+        ScriptFinal(compiler.root_script);
 
         run_vm(&vm);
     }
 
-    final_compiler(&compiler);
+    CompilerFinal(&compiler);
     final_vm(&vm);
 
     return 0;

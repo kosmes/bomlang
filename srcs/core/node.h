@@ -46,7 +46,7 @@ enum NODE_TYPES {
  */
 struct node {
     NODE_TYPES type;    /* < 노드의 종류 */
-    token_t token;      /* < 노드의 토큰 */
+    Token token;      /* < 노드의 토큰 */
     node_t **child;     /* < 노드의 자식들 */
 };
 
@@ -57,14 +57,14 @@ struct node {
  * @param   child   노드의 자식들
  * @return  생성된 노드
  */
-DLL_EXPORT node_t *create_node(NODE_TYPES type, token_t token, node_t **child);
+DLL_EXPORT node_t *NodeCreate(NODE_TYPES type, Token token, node_t **child);
 
 /**
  * @brief   노드의 자식들을 삭제하고 파괴한다
  * @param   node    파괴할 노드
  */
-DLL_EXPORT void destroy_node(node_t *node);
+DLL_EXPORT void NodeDestroy(node_t *node);
 
-DLL_EXPORT void print_node(node_t *node, int indent);
+DLL_EXPORT void NodePrint(node_t *node, int indent);
 
 #endif //BOM_NODE_H
