@@ -122,3 +122,83 @@ const wchar_t *ScriptGetStringFromAddr(Script *script, size_t addr) {
 
     return str;
 }
+
+#define fetch() script->text[offset++]
+
+void printConst(Script *script, size_t *offset) {
+    Converter cvt;
+    cvt.asDouble = 0;
+
+    for (int i = 0; i < 8; i++) {
+        cvt.as_bytes[i] = script->text[(*(offset))++];
+    }
+
+    size_t addr = cvt.as_size;
+    TYPE_ID type_id = script->data[addr++];
+    switch(type_id) {
+        case TYPE_INT: {
+            int data = ScriptGetIntFromAddr(script, addr);
+            wprintf(L"\tvalue: %d ", data);
+        } break;
+        case TYPE_DOUBLE: {
+            double data = ScriptGetDoubleFromAddr(script, addr);
+            wprintf(L"\tvalue: %f ", data);
+        } break;
+        default:
+            break;
+    }
+}
+
+void ScriptPrint(Script *script) {
+    size_t len = buf_len(script->text);
+    size_t offset = 0;
+    while(offset < len) {
+        switch (fetch()) {
+            case OP_CONST: {
+                wprintf(L"const ");
+                printConst(script, &offset);
+                wprintf(L"\n");
+            } break;
+            case OP_STORE: {
+                wprintf(L"store ");
+                Converter cvt;
+                cvt.asDouble = 0;
+                for (int i = 0; i < 8; i++) {
+                    cvt.as_bytes[i] = fetch();
+                }
+
+                wprintf(L"\tto: %zd\n", cvt.as_size);
+            } break;
+            case OP_LOAD: {
+                wprintf(L"load ");
+                Converter cvt;
+                cvt.asDouble = 0;
+                for (int i = 0; i < 8; i++) {
+                    cvt.as_bytes[i] = fetch();
+                }
+
+                wprintf(L"\tfrom: %zd\n", cvt.as_size);
+            } break;
+            case OP_ADD: {
+                wprintf(L"add ");
+                wprintf(L"\n");
+            } break;
+            case OP_SUB: {
+                wprintf(L"sub ");
+                wprintf(L"\n");
+            } break;
+            case OP_MUL: {
+                wprintf(L"mul ");
+                wprintf(L"\n");
+            } break;
+            case OP_DIV: {
+                wprintf(L"div ");
+                wprintf(L"\n");
+            } break;
+            case OP_INVERT: {
+                wprintf(L"invert ");
+                wprintf(L"\n");
+            } break;
+        }
+    }
+}

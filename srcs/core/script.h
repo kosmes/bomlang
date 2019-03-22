@@ -74,4 +74,6 @@ DLL_EXPORT double ScriptGetDoubleFromAddr(Script *script, size_t addr);
  */
 DLL_EXPORT const wchar_t *ScriptGetStringFromAddr(Script *script, size_t addr);
 
+DLL_EXPORT void ScriptPrint(Script *script);
+
 #endif //BOM_SCRIPT_H
