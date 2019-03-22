@@ -69,7 +69,7 @@ static void eat(TOKEN_TYPE type, enum ERROR_CODE errcode) {
     } else {
         this.pos += 1;
         if (this.pos > buf_len(this.tokens)) {
-            ErrorLine(ERR_SYNTAX, this.token.line);
+            ErrorLine(ERR_INVALID_EOF, this.token.line);
         } else {
             this.token = this.tokens[this.pos];
         }
@@ -255,6 +255,6 @@ static Node *assign() {
 
 static Node *variable() {
     Node *node = NodeCreate(NodeVar, this.token, NULL);
-    eat(TokenIdentifier, ERR_SYNTAX);
+    eat(TokenIdentifier, ERR_ID_EXPECTED);
     return node;
 }
