@@ -17,16 +17,9 @@ static size_t hash_string(const u16char *key) {
     return h;
 }
 
-void TableInit(Table *table) {
-    table->cap = 32;
-    table->len = 0;
+void TableDestroy(void *ptr) {
+    Table *table = (Table *) ptr;
 
-    size_t size = sizeof(TablePair) * table->cap;
-    table->pairs = malloc(size);
-    memset(table->pairs, 0, size);
-}
-
-void TableFinal(Table *table) {
     for (int i = 0; i < table->cap; i++) {
         TablePair *pair = table->pairs[i];
         while (pair != NULL) {
@@ -43,6 +36,19 @@ void TableFinal(Table *table) {
     table->cap = 0;
     table->len = 0;
     free(table->pairs);
+}
+
+Table *TableCreate() {
+    Table *table = new (sizeof (Table), TableDestroy);
+
+    table->cap = 32;
+    table->len = 0;
+
+    size_t size = sizeof(TablePair) * table->cap;
+    table->pairs = malloc(size);
+    memset(table->pairs, 0, size);
+
+    return table;
 }
 
 TablePair *TableGetData(Table *table, const u16char *key) {

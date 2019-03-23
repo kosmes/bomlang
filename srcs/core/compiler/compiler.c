@@ -22,7 +22,8 @@ static TYPE_ID checkCasting(Script *target_script, TYPE_ID origin_type,
 
 void CompilerDestroy(void *ptr) {
     Compiler *compiler = (Compiler *) ptr;
-    TableFinal(compiler->scopeTable);
+
+    delete(compiler->scopeTable);
     delete(compiler->rootScript);
 }
 
@@ -31,8 +32,7 @@ Compiler *CompilerCreate() {
 
     compiler->rootScript = ScriptCreate();
 
-    compiler->scopeTable = malloc(sizeof(Table));
-    TableInit(compiler->scopeTable);
+    compiler->scopeTable = TableCreate();
 
     compiler->offset = 0;
 

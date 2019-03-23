@@ -38,15 +38,8 @@ struct table {
 
 /**
  * @brief   주어진 테이블을 초기화한다
- * @param   table   초기화할 테이블
  */
-DLL_EXPORT void TableInit(Table *table);
-
-/**
- * @brief   주어진 테이블을 해제한다
- * @param   table   해제할 테이블
- */
-DLL_EXPORT void TableFinal(Table *table);
+DLL_EXPORT Table *TableCreate();
 
 /**
  * @brief   주어진 테이블에서 키로 값을 찾는다
