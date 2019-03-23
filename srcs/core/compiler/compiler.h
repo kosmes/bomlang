@@ -8,14 +8,14 @@
 #include "common.h"
 #include "script.h"
 #include "visitor.h"
-#include "container/table.h"
+#include "symbol/symboltable.h"
 
 typedef struct compiler Compiler;
 
 struct compiler {
     Script *rootScript;
-    Table *scopeTable;
-    size_t offset;
+    SymbolTable *scopeTable;
+    unsigned int offset;
 };
 
 DLL_EXPORT Compiler *CompilerCreate();
