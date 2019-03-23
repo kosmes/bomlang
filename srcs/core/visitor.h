@@ -5,7 +5,7 @@
 #ifndef BOM_BUILDER_H
 #define BOM_BUILDER_H
 
-#include "node.h"
+#include "compiler/node.h"
 #include "runtime.h"
 
 typedef struct visit_result visit_result_t;

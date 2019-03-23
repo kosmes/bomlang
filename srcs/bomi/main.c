@@ -1,9 +1,9 @@
 ﻿#include <locale.h>
 
-#include "parser.h"
-#include "syntax.h"
+#include "compiler/parser.h"
+#include "compiler/syntax.h"
 #include "buf.h"
-#include "compiler.h"
+#include "compiler/compiler.h"
 #include "runtime.h"
 #include "vm.h"
 #include "error.h"

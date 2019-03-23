@@ -7,7 +7,7 @@
 
 #include "common.h"
 #include "runtime.h"
-#include "script.h"
+#include "compiler/script.h"
 
 #define MEMORY_SIZE 0x4096
 #define STACK_SIZE 0x24
