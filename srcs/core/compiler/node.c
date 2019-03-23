@@ -3,10 +3,19 @@
 //
 
 #include "node.h"
-#include "buf.h"
+#include "container/buf.h"
 
-DLL_EXPORT node_t *create_node(NODE_TYPES type, token_t token, node_t **child) {
-    node_t *node = malloc(sizeof(node_t));
+void NodeDestroy(void *ptr) {
+    Node *node = (Node *) ptr;
+    for (int i = 0; i < buf_len(node->child); i++) {
+        NodeDestroy(node->child[i]);
+    }
+
+    TokenDestroy(&node->token);
+}
+
+DLL_EXPORT Node *NodeCreate(NODE_TYPE type, Token token, Node **child) {
+    Node *node = new(sizeof(Node), NodeDestroy);
 
     node->type = type;
     node->token = token;
@@ -15,15 +24,7 @@ DLL_EXPORT node_t *create_node(NODE_TYPES type, token_t token, node_t **child) {
     return node;
 }
 
-DLL_EXPORT void destroy_node(node_t *node) {
-    for (int i = 0; i < buf_len(node->child); i++) {
-        destroy_node(node->child[i]);
-    }
-
-    destroy_token(&node->token);
-}
-
-void print_node(node_t *node, int indent) {
+void NodePrint(Node *node, int indent) {
     if (node == NULL) {
         return;
     }
@@ -96,6 +97,6 @@ void print_node(node_t *node, int indent) {
     }
 
     for(int i = 0; i < buf_len(node->child); i++) {
-        print_node(node->child[i], indent + 1);
+        NodePrint(node->child[i], indent + 1);
     }
 }

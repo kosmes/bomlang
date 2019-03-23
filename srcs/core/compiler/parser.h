@@ -14,6 +14,6 @@
  * @param   tokens  분석한 토큰들
  * @return  변환된 노드
  */
-DLL_EXPORT node_t *do_parse(token_t *tokens);
+DLL_EXPORT Node *ParserDoParse(Token *tokens);
 
 #endif //BOM_PARSER_H

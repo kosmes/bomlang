@@ -7,7 +7,7 @@
 
 #include "common.h"
 #include "runtime.h"
-#include "script.h"
+#include "compiler/script.h"
 
 #define MEMORY_SIZE 0x4096
 #define STACK_SIZE 0x24
@@ -15,7 +15,7 @@
 /**
  * @brief   가상머신에 관련한 정보를 가지고있는 구조체
  */
-typedef struct vm vm_t;
+typedef struct vm Machine;
 
 /**
  * @brief   사용하는 레지스터를 모아놓은 열거형
@@ -46,34 +46,29 @@ struct vm {
             unsigned char *data;
             unsigned char *text;
         };
-        script_t script;
+        Script script;
     };
 
     unsigned short reg[16];     /* < 레지스터 */
-    var_t stack[STACK_SIZE];    /* < 스택 */
-    var_t local[STACK_SIZE];    /* < 로컬 변수 리스트 */
+    Var stack[STACK_SIZE];    /* < 스택 */
+    Var local[STACK_SIZE];    /* < 로컬 변수 리스트 */
 };
 
 /**
- * @brief   주어진 가상 머신을 초기화한다
+ * @brief   가상 머신을 생성한다
  */
-DLL_EXPORT void init_vm(vm_t *vm);
-
-/**
- * @brief   주어진 가상 머신을 해제시킨다
- */
-DLL_EXPORT void final_vm(vm_t *vm);
+DLL_EXPORT Machine *MachineCreate();
 
 /**
  * @brief   주어진 가상 머신에 스크립트를 연결시킨다
  * @detail 
  * 이전에 연결한 스크립트가 있을 경우 해제시키고 새로 연결한다.
  */
-DLL_EXPORT void set_script(vm_t *vm, script_t *script);
+DLL_EXPORT void MachineSetScript(Machine *vm, Script *script);
 
 /**
  * @brief   가상 머신에서 스크립트를 실행한다
  */
-DLL_EXPORT void run_vm(vm_t *vm);
+DLL_EXPORT void MachineRun(Machine *vm);
 
 #endif //BOM_VM_H

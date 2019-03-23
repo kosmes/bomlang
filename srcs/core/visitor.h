@@ -5,14 +5,14 @@
 #ifndef BOM_BUILDER_H
 #define BOM_BUILDER_H
 
-#include "node.h"
+#include "compiler/node.h"
 #include "runtime.h"
 
 typedef struct visit_result visit_result_t;
 
 struct visit_result {
-    script_t *script;
-    TYPE_ID type_id;
+    Script *script;
+    TYPE_ID typeId;
 };
 
 #endif //BOM_BUILDER_H

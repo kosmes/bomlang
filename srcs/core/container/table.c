@@ -17,23 +17,16 @@ static size_t hash_string(const u16char *key) {
     return h;
 }
 
-void init_table(table_t *table) {
-    table->cap = 32;
-    table->len = 0;
+void TableDestroy(void *ptr) {
+    Table *table = (Table *) ptr;
 
-    size_t size = sizeof(table_pair_t) * table->cap;
-    table->pairs = malloc(size);
-    memset(table->pairs, 0, size);
-}
-
-void final_table(table_t *table) {
     for (int i = 0; i < table->cap; i++) {
-        table_pair_t *pair = table->pairs[i];
+        TablePair *pair = table->pairs[i];
         while (pair != NULL) {
             free(pair->key);
             free(pair->data);
 
-            table_pair_t *temp = pair;
+            TablePair *temp = pair;
             pair = pair->next;
 
             free(temp);
@@ -45,9 +38,22 @@ void final_table(table_t *table) {
     free(table->pairs);
 }
 
-table_pair_t *table_find_by_key(table_t *table, const u16char *key) {
+Table *TableCreate() {
+    Table *table = new (sizeof (Table), TableDestroy);
+
+    table->cap = 32;
+    table->len = 0;
+
+    size_t size = sizeof(TablePair) * table->cap;
+    table->pairs = malloc(size);
+    memset(table->pairs, 0, size);
+
+    return table;
+}
+
+TablePair *TableGetData(Table *table, const u16char *key) {
     if (table->cap <= 0) {
-        error(ERR_INVALID_INDEX);
+        Error(ERR_INVALID_INDEX);
         return NULL;
     }
 
@@ -55,14 +61,14 @@ table_pair_t *table_find_by_key(table_t *table, const u16char *key) {
     return table->pairs[addr];
 }
 
-table_pair_t *table_insert_data(table_t *table, const u16char *key, void *data) {
+TablePair *TableSetData(Table *table, const u16char *key, void *data) {
     if (table->cap <= 0) {
-        error(ERR_INVALID_INDEX);
-        return false;
+        Error(ERR_INVALID_INDEX);
+        return NULL;
     }
 
     size_t addr = hash_string(key) % table->cap;
-    table_pair_t *pair = table->pairs[addr];
+    TablePair *pair = table->pairs[addr];
 
     if (pair == NULL) {
         pair = malloc(sizeof(pair));
@@ -83,7 +89,7 @@ table_pair_t *table_insert_data(table_t *table, const u16char *key, void *data) 
             if (pair->next != NULL) {
                 pair = pair->next;
             } else {
-                table_pair_t *new_pair = malloc(sizeof(pair));
+                TablePair *new_pair = malloc(sizeof(pair));
 
                 new_pair->key = malloc(sizeof(u16char) * (wcslen(key) + 1));
                 wcscpy(new_pair->key, key);

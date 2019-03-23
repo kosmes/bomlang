@@ -10,17 +10,17 @@
 /**
  * @brief   토큰의 종류들을 모아놓은 열거형
  */
-typedef enum TOKEN_TYPES TOKEN_TYPES;
+typedef enum TOKEN_TYPE TOKEN_TYPE;
 
 /**
  * @brief   토큰종류와 속성값으로 구성되는 데이터, 각 패턴에 부합하는 어휘 항목을 가지고 있는다
  */
-typedef struct token token_t;
+typedef struct token Token;
 
 /**
  * @brief   토큰의 종류들을 모아놓은 열거형
  */
-enum TOKEN_TYPES {
+enum TOKEN_TYPE {
     TokenNone,
     TokenComma,
     TokenAssign,
@@ -44,7 +44,7 @@ enum TOKEN_TYPES {
  */
 struct token {
     /*  @brief  토큰의 종류 */
-    TOKEN_TYPES type;
+    TOKEN_TYPE type;
 
     /*  @brief  토큰이 위치하는 줄 */
     unsigned int line;
@@ -59,7 +59,7 @@ struct token {
     /*  @brief  토큰의 문자열 값 */
     union {
         u16char *str;
-        wchar_t *dbg_str;
+        wchar_t *dbg;
     };
 };
 
@@ -69,12 +69,12 @@ struct token {
  * @param   line    토큰의 라인
  * @return  초기화된 토큰
  */
-DLL_EXPORT token_t create_token(TOKEN_TYPES type, unsigned int line);
+DLL_EXPORT Token TokenCreate(TOKEN_TYPE type, unsigned int line);
 
 /**
  * @brief   토큰을 파괴한다
  * @param   token[in]   파괴할 토큰
  */
-DLL_EXPORT void destroy_token(token_t *token);
+DLL_EXPORT void TokenDestroy(Token *token);
 
 #endif //BOM_TOKEN_H

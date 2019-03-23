@@ -3,20 +3,20 @@
 //
 
 #include "syntax.h"
-#include "buf.h"
+#include "container/buf.h"
 #include "error.h"
 
 #define WNULL L'\0'
-#define CHECK1(c, t) if (this.ch == L##c) { buf_push(tokens, create_token(t, this.line)); advance(); continue; }
+#define CHECK1(c, t) if (this.ch == L##c) { buf_push(tokens, TokenCreate(t, this.line)); advance(); continue; }
 #define CHECK2(c1, t1, c2, t2) if (this.ch == L##c1) \
-    { buf_push(tokens, create_token(t1, this.line)); advance(); continue; } \
-    else if (this.ch == L##c2) { buf_push(tokens, create_token(t2, this.line)); advance(); continue; }
+    { buf_push(tokens, TokenCreate(t1, this.line)); advance(); continue; } \
+    else if (this.ch == L##c2) { buf_push(tokens, TokenCreate(t2, this.line)); advance(); continue; }
 
-typedef struct syntax syntax_t;
+typedef struct syntax Syntax;
 
 struct syntax {
     u16char *text;
-    size_t text_len;
+    size_t textLen;
 
     u16char ch;
     size_t pos;
@@ -24,11 +24,11 @@ struct syntax {
     unsigned int line;
 };
 
-static syntax_t this;
+static Syntax this;
 
 struct keyword {
     const u16char *key;
-    const token_t token;
+    const Token token;
 };
 
 static const unsigned char keyword_count = 3;
@@ -39,7 +39,7 @@ const struct keyword keywords[] = {
         {.key = L"실수", .token = {.type=TokenDoubleType, .i32 = 0, .line = 0, .str = NULL}},
 };
 
-static bool is_idable(u16char ch) {
+static bool isIdable(u16char ch) {
     const u16char *specials = L"!@#$%^&*()+=-<>,./?'\";:[]{}~`";
     u16char data[2] = { WNULL, };
     data[0] = ch;
@@ -48,7 +48,7 @@ static bool is_idable(u16char ch) {
 
 static void advance() {
     this.pos += 1;
-    if (this.pos >= this.text_len) {
+    if (this.pos >= this.textLen) {
         this.ch = WNULL;
     } else {
         this.ch = this.text[this.pos];
@@ -60,17 +60,17 @@ static void advance() {
 
 static u16char peek() {
     size_t peek_pos = this.pos + 1;
-    if (peek_pos > this.text_len) {
+    if (peek_pos > this.textLen) {
         return WNULL;
     } else {
         return this.text[peek_pos];
     }
 }
 
-static token_t get_number() {
+static Token getNumber() {
     wchar_t buf[16];
     char offset = 0;
-    token_t token;
+    Token token;
 
     while (this.ch != WNULL && iswdigit(this.ch)) {
         buf[offset++] = this.ch;
@@ -86,25 +86,25 @@ static token_t get_number() {
             advance();
         }
 
-        token = create_token(TokenFPConstant, this.line);
+        token = TokenCreate(TokenFPConstant, this.line);
         token.f64 = (double) wcstod(buf, NULL);
 
     } else {
-        token = create_token(TokenIntegerConstant, this.line);
+        token = TokenCreate(TokenIntegerConstant, this.line);
         token.i32 = (int) wcstol(buf, NULL, 10);
     }
 
     return token;
 }
 
-static token_t get_id() {
+static Token getId() {
     u16char *start = NULL;
     size_t offset = 0;
-    token_t token;
+    Token token;
 
     start = (this.text + this.pos);
 
-    while (this.ch != WNULL && is_idable(this.ch) && !iswspace(this.ch)) {
+    while (this.ch != WNULL && isIdable(this.ch) && !iswspace(this.ch)) {
         offset++;
         advance();
     }
@@ -131,31 +131,31 @@ static token_t get_id() {
     return token;
 }
 
-static void skip_whitespace() {
+static void skipWhitespace() {
     while (this.ch != WNULL && iswspace(this.ch)) {
         advance();
     }
 }
 
-token_t *get_tokens(wchar_t *text) {
+Token *SyntaxGetTokens(wchar_t *text) {
     this.text = text;
-    this.text_len = wcslen(text);
+    this.textLen = wcslen(text);
 
     this.pos = 0;
     this.ch = this.text[this.pos];
 
     this.line = 1;
 
-    token_t *tokens = NULL;
+    Token *tokens = NULL;
 
     while (this.ch != WNULL) {
         if (iswspace(this.ch)) {
-            skip_whitespace();
+            skipWhitespace();
             continue;
         }
 
         if (iswdigit(this.ch)) {
-            buf_push(tokens, get_number());
+            buf_push(tokens, getNumber());
             continue;
         }
 
@@ -173,18 +173,18 @@ token_t *get_tokens(wchar_t *text) {
         CHECK1('/', TokenSlash);
         CHECK1('%', TokenModulus);
 
-        if (is_idable(this.ch)) {
-            buf_push(tokens, get_id());
+        if (isIdable(this.ch)) {
+            buf_push(tokens, getId());
             continue;
         }
 
-        error_line(ERR_INVALID_TOKEN, this.line);
+        ErrorLine(ERR_INVALID_TOKEN, this.line);
         advance();
     }
 
-    buf_push(tokens, create_token(TokenEndOfFile, this.line));
+    buf_push(tokens, TokenCreate(TokenEndOfFile, this.line));
 
-    if (get_error_count() != 0) {
+    if (ErrorGetCount() != 0) {
         buf_free(tokens);
         return NULL;
     }

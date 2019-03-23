@@ -4,8 +4,8 @@
 
 #include "token.h"
 
-token_t create_token(TOKEN_TYPES type, unsigned int line) {
-    token_t token;
+Token TokenCreate(TOKEN_TYPE type, unsigned int line) {
+    Token token;
 
     token.type = type;
     token.line = line;
@@ -14,7 +14,7 @@ token_t create_token(TOKEN_TYPES type, unsigned int line) {
     return token;
 }
 
-void destroy_token(token_t *token) {
+void TokenDestroy(Token *token) {
     if (token->str != NULL) {
         free(token->str);
     }

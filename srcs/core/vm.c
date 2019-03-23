@@ -3,40 +3,24 @@
 //
 
 #include "vm.h"
-#include "buf.h"
+#include "container/buf.h"
 #include "error.h"
 
 #define NEXT_CODE(vm) ((vm)->text[(vm)->reg[REG_PROGRAM_CODE]++])
-#define THROW_ERROR(vm, errcode) (error_line(errcode, 0), \
+#define THROW_ERROR(vm, errcode) (ErrorLine(errcode, 0), \
         (vm)->reg[REG_MACHINE_STATUS] = STATUS_ERROR_THROWN); return;
 
 #define CHECK_STACK_OVERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] + offset >= STACK_SIZE) \
-    { error_line(ERR_STACK_OVERFLOW, 0); return; }
+    { ErrorLine(ERR_STACK_OVERFLOW, 0); return; }
 
 #define CHECK_STACK_UNDERFLOW(vm, offset) if ((vm)->reg[REG_STACK_POINTER] - offset < 0) \
-    { error_line(ERR_STACK_UNDERFLOW, 0); return 0; }
+    { ErrorLine(ERR_STACK_UNDERFLOW, 0); return 0; }
 
 #define GET_STACK(vm, offset) ((vm)->stack[(vm)->reg[REG_STACK_POINTER] - offset - 1])
 
-void init_vm(vm_t *vm) {
-    vm->reg[REG_PROGRAM_CODE] = 0;
-    vm->reg[REG_FRAME_POINTER] = 0;
-    vm->reg[REG_STACK_POINTER] = 0;
-    vm->reg[REG_MACHINE_STATUS] = 0;
+void MachineDestroy(void *ptr) {
+    Machine *vm = (void *) ptr;
 
-    vm->data = NULL;
-    vm->text = NULL;
-
-    for (int i = 0; i < STACK_SIZE; i++) {
-        vm->stack[i].type_id = TYPE_NONE;
-        vm->stack[i].data = NULL;
-
-        vm->local[i].type_id = TYPE_NONE;
-        vm->local[i].data = NULL;
-    }
-}
-
-void final_vm(vm_t *vm) {
     buf_free(vm->data);
     buf_free(vm->text);
 
@@ -47,8 +31,30 @@ void final_vm(vm_t *vm) {
     }
 }
 
-void set_script(vm_t *vm, script_t *script) {
-    final_script(&vm->script);
+Machine *MachineCreate() {
+    Machine *vm = new(sizeof(Machine), MachineDestroy);
+
+    vm->reg[REG_PROGRAM_CODE] = 0;
+    vm->reg[REG_FRAME_POINTER] = 0;
+    vm->reg[REG_STACK_POINTER] = 0;
+    vm->reg[REG_MACHINE_STATUS] = 0;
+
+    vm->data = NULL;
+    vm->text = NULL;
+
+    for (int i = 0; i < STACK_SIZE; i++) {
+        vm->stack[i].typeId = TYPE_NONE;
+        vm->stack[i].data = NULL;
+
+        vm->local[i].typeId = TYPE_NONE;
+        vm->local[i].data = NULL;
+    }
+
+    return vm;
+}
+
+void MachineSetScript(Machine *vm, Script *script) {
+    delete(&vm->script);
     vm->reg[REG_PROGRAM_CODE] = 0;
 
     for (int i = 0; i < buf_len(script->data); i++) {
@@ -60,65 +66,65 @@ void set_script(vm_t *vm, script_t *script) {
     }
 }
 
-static void push_int(vm_t *vm, int data) {
+static void push_int(Machine *vm, int data) {
     CHECK_STACK_OVERFLOW(vm, 1);
 
-    var_t var = vm->stack[vm->reg[REG_STACK_POINTER]];
+    Var var = vm->stack[vm->reg[REG_STACK_POINTER]];
     if (var.data != NULL) {
         free(var.data);
     }
     var.data = malloc(sizeof(int));
     memcpy(var.data, &data, sizeof(int));
-    var.type_id = TYPE_INT;
+    var.typeId = TYPE_INT;
     vm->stack[vm->reg[REG_STACK_POINTER]] = var;
 
     vm->reg[REG_STACK_POINTER]++;
 }
 
-static void push_double(vm_t *vm, double data) {
+static void push_double(Machine *vm, double data) {
     CHECK_STACK_OVERFLOW(vm, 1);
 
-    var_t var = vm->stack[vm->reg[REG_STACK_POINTER]];
+    Var var = vm->stack[vm->reg[REG_STACK_POINTER]];
     if (var.data != NULL) {
         free(var.data);
     }
     var.data = malloc(sizeof(double));
     memcpy(var.data, &data, sizeof(double));
-    var.type_id = TYPE_DOUBLE;
+    var.typeId = TYPE_DOUBLE;
     vm->stack[vm->reg[REG_STACK_POINTER]] = var;
 
     vm->reg[REG_STACK_POINTER]++;
 }
 
-static int pop_int(vm_t *vm) {
+static int pop_int(Machine *vm) {
     CHECK_STACK_UNDERFLOW(vm, 1);
 
     vm->reg[REG_STACK_POINTER]--;
-    var_t var = vm->stack[vm->reg[REG_STACK_POINTER]];
+    Var var = vm->stack[vm->reg[REG_STACK_POINTER]];
     if (var.data == NULL) {
-        error(ERR_INVALID_ACCESS);
+        Error(ERR_INVALID_ACCESS);
         return 0;
     }
     int data = *((int *) var.data);
     return data;
 }
 
-static double pop_double(vm_t *vm) {
+static double pop_double(Machine *vm) {
     CHECK_STACK_UNDERFLOW(vm, 1);
 
     vm->reg[REG_STACK_POINTER]--;
-    var_t var = vm->stack[vm->reg[REG_STACK_POINTER]];
+    Var var = vm->stack[vm->reg[REG_STACK_POINTER]];
     if (var.data == NULL) {
-        error(ERR_INVALID_ACCESS);
+        Error(ERR_INVALID_ACCESS);
         return 0;
     }
     double data = *((double *) var.data);
     return data;
 }
 
-static TYPE_ID cast_stack_2value_equal_from_top(vm_t *vm) {
-    TYPE_ID first = GET_STACK(vm, 0).type_id;
-    TYPE_ID second = GET_STACK(vm, 1).type_id;
+static TYPE_ID cast_stack_2value_equal_from_top(Machine *vm) {
+    TYPE_ID first = GET_STACK(vm, 0).typeId;
+    TYPE_ID second = GET_STACK(vm, 1).typeId;
 
     if (first == second) {
         return first;
@@ -152,8 +158,8 @@ static TYPE_ID cast_stack_2value_equal_from_top(vm_t *vm) {
     return result_type;
 }
 
-static void op_const(vm_t *vm) {
-    converter_t cvt;
+static void op_const(Machine *vm) {
+    Converter cvt;
     cvt.asDouble = 0;
     for (int i = 0; i < 8; i++) {
         cvt.as_bytes[i] = NEXT_CODE(vm);
@@ -163,24 +169,24 @@ static void op_const(vm_t *vm) {
 
     switch (type_id) {
         case TYPE_INT:
-            push_int(vm, get_int_from_addr(&vm->script, cvt.as_size));
+            push_int(vm, ScriptGetIntFromAddr(&vm->script, cvt.as_size));
             break;
         case TYPE_DOUBLE:
-            push_double(vm, get_double_from_addr(&vm->script, cvt.as_size));
+            push_double(vm, ScriptGetDoubleFromAddr(&vm->script, cvt.as_size));
             break;
         default:
             break;
     }
 }
 
-static void op_store(vm_t *vm) {
-    TYPE_ID type = GET_STACK(vm, 0).type_id;
-    converter_t cvt;
+static void op_store(Machine *vm) {
+    TYPE_ID type = GET_STACK(vm, 0).typeId;
+    Converter cvt;
     for (int i = 0; i < 8; i++) {
         cvt.as_bytes[i] = NEXT_CODE(vm);
     }
     size_t addr = cvt.as_size;
-    var_t var = vm->local[addr];
+    Var var = vm->local[addr];
     if (var.data != NULL) {
         free(var.data);
     }
@@ -190,14 +196,14 @@ static void op_store(vm_t *vm) {
             int data = pop_int(vm);
             var.data = malloc(sizeof(int));
             memcpy(var.data, &data, sizeof(int));
-            var.type_id = TYPE_INT;
+            var.typeId = TYPE_INT;
             break;
         }
         case TYPE_DOUBLE: {
             double data = pop_double(vm);
             var.data = malloc(sizeof(double));
             memcpy(var.data, &data, sizeof(double));
-            var.type_id = TYPE_DOUBLE;
+            var.typeId = TYPE_DOUBLE;
             break;
         }
         default:
@@ -207,14 +213,14 @@ static void op_store(vm_t *vm) {
     vm->local[addr] = var;
 }
 
-static void op_load(vm_t *vm) {
-    converter_t cvt;
+static void op_load(Machine *vm) {
+    Converter cvt;
     for (int i = 0; i < 8; i++) {
         cvt.as_bytes[i] = NEXT_CODE(vm);
     }
     size_t addr = cvt.as_size;
-    var_t var = vm->local[addr];
-    switch (var.type_id) {
+    Var var = vm->local[addr];
+    switch (var.typeId) {
         case TYPE_INT:
             push_int(vm, *((int *) var.data));
             break;
@@ -226,7 +232,7 @@ static void op_load(vm_t *vm) {
     }
 }
 
-static void op_add(vm_t *vm) {
+static void op_add(Machine *vm) {
     TYPE_ID type = cast_stack_2value_equal_from_top(vm);
 
     switch (type) {
@@ -247,7 +253,7 @@ static void op_add(vm_t *vm) {
     }
 }
 
-static void op_sub(vm_t *vm) {
+static void op_sub(Machine *vm) {
     TYPE_ID type = cast_stack_2value_equal_from_top(vm);
 
     switch (type) {
@@ -268,7 +274,7 @@ static void op_sub(vm_t *vm) {
     }
 }
 
-static void op_mul(vm_t *vm) {
+static void op_mul(Machine *vm) {
     TYPE_ID type = cast_stack_2value_equal_from_top(vm);
 
     switch (type) {
@@ -289,7 +295,7 @@ static void op_mul(vm_t *vm) {
     }
 }
 
-static void op_div(vm_t *vm) {
+static void op_div(Machine *vm) {
     TYPE_ID type = cast_stack_2value_equal_from_top(vm);
 
     switch (type) {
@@ -318,8 +324,8 @@ static void op_div(vm_t *vm) {
     }
 }
 
-static void op_invert(vm_t *vm) {
-    TYPE_ID type = GET_STACK(vm, 0).type_id;
+static void op_invert(Machine *vm) {
+    TYPE_ID type = GET_STACK(vm, 0).typeId;
     switch (type) {
         case TYPE_INT:
             push_int(vm, -pop_int(vm));
@@ -333,12 +339,12 @@ static void op_invert(vm_t *vm) {
     }
 }
 
-static void op_return(vm_t *vm) {
+static void op_return(Machine *vm) {
 
 }
 
-static void op_dbg_print(vm_t *vm) {
-    TYPE_ID code = GET_STACK(vm, 0).type_id;
+static void op_dbg_print(Machine *vm) {
+    TYPE_ID code = GET_STACK(vm, 0).typeId;
     switch (code) {
         case TYPE_INT:
             wprintf(L"%d\n", pop_int(vm));
@@ -349,7 +355,7 @@ static void op_dbg_print(vm_t *vm) {
     }
 }
 
-void run_vm(vm_t *vm) {
+void MachineRun(Machine *vm) {
     bool running = true;
 
     do {
