@@ -8,7 +8,7 @@
 #include "common.h"
 #include "script.h"
 #include "visitor.h"
-#include "table.h"
+#include "container/table.h"
 
 typedef struct compiler Compiler;
 
