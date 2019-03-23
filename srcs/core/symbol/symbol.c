@@ -19,6 +19,7 @@ Symbol *SymbolCreate(unsigned char type, const u16char *name, Symbol *base) {
     symbol->name = malloc(name_size);
     memcpy(symbol->name, name, name_size);
     symbol->base = base;
+    symbol->slot = 0;
 
     return symbol;
 }

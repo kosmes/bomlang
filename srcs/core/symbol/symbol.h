@@ -19,6 +19,7 @@ struct symbol {
     unsigned char type;
     u16char *name;
     Symbol *base;
+    unsigned int slot;
 };
 
 DLL_EXPORT Symbol *SymbolCreate(unsigned char type, const u16char *name, Symbol *base);
