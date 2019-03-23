@@ -54,7 +54,12 @@ Machine *MachineCreate() {
 }
 
 void MachineSetScript(Machine *vm, Script *script) {
-    delete(&vm->script);
+    buf_free(vm->data);
+    buf_free(vm->text);
+
+    vm->data = NULL;
+    vm->text = NULL;
+
     vm->reg[REG_PROGRAM_CODE] = 0;
 
     for (int i = 0; i < buf_len(script->data); i++) {
