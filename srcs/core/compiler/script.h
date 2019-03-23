@@ -15,16 +15,9 @@ struct script {
 };
 
 /**
- * @brief   주어진 스크립트를 초기화한다
- * @param   script  초기화 시킬 스크립트
+ * @brief   스크립트 생성한다
  */
-DLL_EXPORT void ScriptInit(Script *script);
-
-/**
- * @brief   주어진 스크립트를 해제시킨다
- * @param   script  해제 시킬 스크립트
- */
-DLL_EXPORT void ScriptFinal(Script *script);
+DLL_EXPORT Script *ScriptCreate();
 
 /**
  * @brief   주어진 스크립트에 정수형 값을 집어넣고 집어넣은 위치를 반환한다

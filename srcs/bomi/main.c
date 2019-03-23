@@ -28,11 +28,8 @@ int main(void) {
     wprintf(L"봄 인터프리터 0.0.2 베타 버전\n");
     wprintf(L"종료하려면 Ctrl+C를 누르거나 '종료'를 입력하세요.\n");
 
-    Compiler compiler;
-    Machine vm;
-
-    CompilerInit(&compiler);
-    MachineInit(&vm);
+    Compiler *compiler = CompilerCreate();
+    Machine *vm = MachineCreate();
 
     while (true) {
         ErrorResetCount();
@@ -57,7 +54,7 @@ int main(void) {
         NodePrint(root_node, 0);
 #endif
 
-        if (!CompilerTryCompile(&compiler, root_node)) {
+        if (!CompilerTryCompile(compiler, root_node)) {
             continue;
         }
 
@@ -67,14 +64,14 @@ int main(void) {
         ScriptPrint(compiler.rootScript);
 #endif
 
-        MachineSetScript(&vm, compiler.rootScript);
-        ScriptFinal(compiler.rootScript);
+        MachineSetScript(vm, compiler->rootScript);
+        delete(compiler->rootScript);
 
-        MachineRun(&vm);
+        MachineRun(vm);
     }
 
-    CompilerFinal(&compiler);
-    MachineFinal(&vm);
+    delete(compiler);
+    delete(vm);
 
     return 0;
 }

@@ -20,19 +20,23 @@ static unsigned char *visit(Node *node);
 static TYPE_ID checkCasting(Script *target_script, TYPE_ID origin_type,
                             TYPE_ID to_type, bool force);
 
-void CompilerInit(Compiler *compiler) {
-    compiler->rootScript = malloc(sizeof(Script));
-    ScriptInit(compiler->rootScript);
+void CompilerDestroy(void *ptr) {
+    Compiler *compiler = (Compiler *) ptr;
+    TableFinal(compiler->scopeTable);
+    delete(compiler->rootScript);
+}
+
+Compiler *CompilerCreate() {
+    Compiler *compiler = new(sizeof(Compiler), CompilerDestroy);
+
+    compiler->rootScript = ScriptCreate();
 
     compiler->scopeTable = malloc(sizeof(Table));
     TableInit(compiler->scopeTable);
 
     compiler->offset = 0;
-}
 
-void CompilerFinal(Compiler *compiler) {
-    TableFinal(compiler->scopeTable);
-    ScriptFinal(compiler->rootScript);
+    return compiler;
 }
 
 static CODE_BUFFER visitIntegerConstant(Node *node) {

@@ -55,14 +55,9 @@ struct vm {
 };
 
 /**
- * @brief   주어진 가상 머신을 초기화한다
+ * @brief   가상 머신을 생성한다
  */
-DLL_EXPORT void MachineInit(Machine *vm);
-
-/**
- * @brief   주어진 가상 머신을 해제시킨다
- */
-DLL_EXPORT void MachineFinal(Machine *vm);
+DLL_EXPORT Machine *MachineCreate();
 
 /**
  * @brief   주어진 가상 머신에 스크립트를 연결시킨다

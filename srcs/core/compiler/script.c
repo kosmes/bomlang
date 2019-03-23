@@ -6,17 +6,23 @@
 #include "container/buf.h"
 #include "runtime.h"
 
-void ScriptInit(Script *script) {
-    script->text = NULL;
-    script->data = NULL;
-}
+void ScriptDestroy(void *ptr) {
+    Script *script = (Script *) ptr;
 
-DLL_EXPORT void ScriptFinal(Script *script) {
     buf_free(script->data);
     buf_free(script->text);
 
     script->text = NULL;
     script->data = NULL;
+}
+
+Script *ScriptCreate() {
+    Script *script = new(sizeof(Script), ScriptDestroy);
+
+    script->text = NULL;
+    script->data = NULL;
+
+    return script;
 }
 
 size_t ScriptAddIntAndReturnAddr(Script *script, int data) {

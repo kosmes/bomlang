@@ -18,9 +18,7 @@ struct compiler {
     size_t offset;
 };
 
-DLL_EXPORT void CompilerInit(Compiler *compiler);
-
-DLL_EXPORT void CompilerFinal(Compiler *compiler);
+DLL_EXPORT Compiler *CompilerCreate();
 
 DLL_EXPORT bool CompilerTryCompile(Compiler *compiler, Node *root_node);
 
