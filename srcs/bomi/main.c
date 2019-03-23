@@ -61,7 +61,7 @@ int main(void) {
             continue;
         }
 
-        NodeDestroy(root_node);
+        delete(root_node);
 
 #if DEBUG_MODE
         ScriptPrint(compiler.rootScript);

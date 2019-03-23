@@ -53,7 +53,7 @@ DLL_EXPORT Node *ParserDoParse(Token *tokens) {
         ErrorLine(ERR_SYNTAX, this.token.line);
     }
     if (ErrorGetCount() != 0) {
-        NodeDestroy(root_node);
+        delete(root_node);
         wprintf(L"오류 '%d'개가 검출되었습니다.\n", ErrorGetCount());
         return NULL;
     } else {

@@ -59,12 +59,6 @@ struct node {
  */
 DLL_EXPORT Node *NodeCreate(NODE_TYPE type, Token token, Node **child);
 
-/**
- * @brief   노드의 자식들을 삭제하고 파괴한다
- * @param   node    파괴할 노드
- */
-DLL_EXPORT void NodeDestroy(Node *node);
-
 DLL_EXPORT void NodePrint(Node *node, int indent);
 
 #endif //BOM_NODE_H
