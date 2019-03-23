@@ -3,7 +3,7 @@
 //
 
 #include "node.h"
-#include "buf.h"
+#include "container/buf.h"
 
 void NodeDestroy(void *ptr) {
     Node *node = (Node *) ptr;

@@ -2,7 +2,7 @@
 
 #include "compiler/parser.h"
 #include "compiler/syntax.h"
-#include "buf.h"
+#include "container/buf.h"
 #include "compiler/compiler.h"
 #include "runtime.h"
 #include "vm.h"

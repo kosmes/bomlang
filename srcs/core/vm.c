@@ -3,7 +3,7 @@
 //
 
 #include "vm.h"
-#include "buf.h"
+#include "container/buf.h"
 #include "error.h"
 
 #define NEXT_CODE(vm) ((vm)->text[(vm)->reg[REG_PROGRAM_CODE]++])

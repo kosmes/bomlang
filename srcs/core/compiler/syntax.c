@@ -3,7 +3,7 @@
 //
 
 #include "syntax.h"
-#include "buf.h"
+#include "container/buf.h"
 #include "error.h"
 
 #define WNULL L'\0'

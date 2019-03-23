@@ -3,7 +3,7 @@
 //
 
 #include "script.h"
-#include "buf.h"
+#include "container/buf.h"
 #include "runtime.h"
 
 void ScriptInit(Script *script) {
