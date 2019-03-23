@@ -5,7 +5,7 @@
 #include "symbol/symboltable.h"
 
 void SymbolTableDestroy(void *ptr) {
-    SymbolTable *table = (SymbolTable *)table;
+    SymbolTable *table = (SymbolTable *) ptr;
 
     delete(table->symbols);
 }
