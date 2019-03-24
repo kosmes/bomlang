@@ -11,7 +11,7 @@ void SymbolTableDestroy(void *ptr) {
 }
 
 SymbolTable *SymbolTableCreate(SymbolTable *parent) {
-    SymbolTable *table = new (sizeof(SymbolTable), SymbolTableDestroy);
+    SymbolTable *table = new (SymbolTable, SymbolTableDestroy);
 
     table->symbols = TableCreate();
     table->parent = parent;

@@ -28,7 +28,7 @@ void CompilerDestroy(void *ptr) {
 }
 
 Compiler *CompilerCreate() {
-    Compiler *compiler = new(sizeof(Compiler), CompilerDestroy);
+    Compiler *compiler = new (Compiler, CompilerDestroy);
 
     compiler->rootScript = ScriptCreate();
     compiler->scopeTable = SymbolTableCreate(NULL);

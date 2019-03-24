@@ -12,8 +12,12 @@ struct meta {
     void *ptr;
 };
 
-void *new(size_t size, void (*dtor)(void *));
+#define new(t, d) ((t *) _new(sizeof(t), d));
+
+void *_new(size_t size, void (*dtor)(void *));
 
 void delete(void *ptr);
+
+void GeneralDtor(void *ptr);
 
 #endif //BOM_SMEM_H

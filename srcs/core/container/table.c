@@ -39,7 +39,7 @@ void TableDestroy(void *ptr) {
 }
 
 Table *TableCreate() {
-    Table *table = new (sizeof (Table), TableDestroy);
+    Table *table = new (Table, TableDestroy);
 
     table->cap = 32;
     table->len = 0;

@@ -32,7 +32,7 @@ void MachineDestroy(void *ptr) {
 }
 
 Machine *MachineCreate() {
-    Machine *vm = new(sizeof(Machine), MachineDestroy);
+    Machine *vm = new (Machine, MachineDestroy);
 
     vm->reg[REG_PROGRAM_CODE] = 0;
     vm->reg[REG_FRAME_POINTER] = 0;

@@ -17,7 +17,7 @@ void ScriptDestroy(void *ptr) {
 }
 
 Script *ScriptCreate() {
-    Script *script = new(sizeof(Script), ScriptDestroy);
+    Script *script = new (Script, ScriptDestroy);
 
     script->text = NULL;
     script->data = NULL;
