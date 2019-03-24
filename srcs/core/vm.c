@@ -18,7 +18,7 @@
 
 #define GET_STACK(vm, offset) ((vm)->stack[(vm)->reg[REG_STACK_POINTER] - offset - 1])
 
-void MachineDestroy(void *ptr) {
+void _MachineDestroy(void *ptr) {
     Machine *vm = (void *) ptr;
 
     buf_free(vm->data);
@@ -32,7 +32,7 @@ void MachineDestroy(void *ptr) {
 }
 
 Machine *MachineCreate() {
-    Machine *vm = create (Machine, MachineDestroy);
+    Machine *vm = create (Machine, _MachineDestroy);
 
     vm->reg[REG_PROGRAM_CODE] = 0;
     vm->reg[REG_FRAME_POINTER] = 0;
@@ -41,6 +41,8 @@ Machine *MachineCreate() {
 
     vm->data = NULL;
     vm->text = NULL;
+
+    vm->compiler = CompilerCreate();
 
     for (int i = 0; i < STACK_SIZE; i++) {
         vm->stack[i].typeId = TYPE_NONE;
@@ -51,6 +53,10 @@ Machine *MachineCreate() {
     }
 
     return vm;
+}
+
+void MachineDestroy(Machine *machine) {
+    _delete(machine->compiler);
 }
 
 void MachineSetScript(Machine *vm, Script *script) {
