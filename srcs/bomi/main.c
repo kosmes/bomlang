@@ -1,10 +1,5 @@
 ﻿#include <locale.h>
 
-#include "compiler/parser.h"
-#include "compiler/syntax.h"
-#include "container/buf.h"
-#include "compiler/compiler.h"
-#include "runtime.h"
 #include "vm.h"
 #include "error.h"
 
@@ -25,53 +20,20 @@ void add_history(u16char* unused) {}
 int main(void) {
     setlocale(LC_ALL, "");
 
-    wprintf(L"봄 인터프리터 0.0.2 베타 버전\n");
+    wprintf(L"봄 인터프리터 0.0.1 베타 버전\n");
     wprintf(L"종료하려면 Ctrl+C를 누르거나 '종료'를 입력하세요.\n");
 
-    Compiler *compiler = CompilerCreate();
     Machine *vm = MachineCreate();
 
-    while (true) {
+    //while (true) {
         ErrorResetCount();
         
-        u16char *input = readline(L"bom> ");
-        if(wcscmp(input, L"종료") == 0) {
-            break;
-        }
+        u16char *input = L"ㄱ = 10 선언;"; // readline(L"bom> ");
 
-        Token *tokens = SyntaxGetTokens(input);
-        if (tokens == NULL) {
-            continue;
-        }
+        MachineRunCode(vm, input);
+    //}
 
-        Node *root_node = ParserDoParse(tokens);
-
-        if (root_node == NULL) {
-            continue;
-        }
-
-#if DEBUG_MODE
-        NodePrint(root_node, 0);
-#endif
-
-        if (!CompilerTryCompile(compiler, root_node)) {
-            continue;
-        }
-
-        delete(root_node);
-
-#if DEBUG_MODE
-        ScriptPrint(compiler.rootScript);
-#endif
-
-        MachineSetScript(vm, compiler->rootScript);
-        delete(compiler->rootScript);
-
-        MachineRun(vm);
-    }
-
-    delete(compiler);
-    delete(vm);
+    MachineDestroy(vm);
 
     return 0;
 }

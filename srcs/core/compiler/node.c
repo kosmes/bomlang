@@ -15,7 +15,7 @@ void NodeDestroy(void *ptr) {
 }
 
 DLL_EXPORT Node *NodeCreate(NODE_TYPE type, Token token, Node **child) {
-    Node *node = new(sizeof(Node), NodeDestroy);
+    Node *node = create (Node, NodeDestroy);
 
     node->type = type;
     node->token = token;

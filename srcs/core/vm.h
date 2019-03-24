@@ -7,7 +7,9 @@
 
 #include "common.h"
 #include "runtime.h"
+
 #include "compiler/script.h"
+#include "compiler/compiler.h"
 
 #define MEMORY_SIZE 0x4096
 #define STACK_SIZE 0x24
@@ -52,12 +54,16 @@ struct vm {
     unsigned short reg[16];     /* < 레지스터 */
     Var stack[STACK_SIZE];    /* < 스택 */
     Var local[STACK_SIZE];    /* < 로컬 변수 리스트 */
+
+    Compiler *compiler;
 };
 
 /**
  * @brief   가상 머신을 생성한다
  */
 DLL_EXPORT Machine *MachineCreate();
+
+DLL_EXPORT void MachineDestroy(Machine *machine);
 
 /**
  * @brief   주어진 가상 머신에 스크립트를 연결시킨다
@@ -70,5 +76,7 @@ DLL_EXPORT void MachineSetScript(Machine *vm, Script *script);
  * @brief   가상 머신에서 스크립트를 실행한다
  */
 DLL_EXPORT void MachineRun(Machine *vm);
+
+DLL_EXPORT void MachineRunCode(Machine *vm, const u16char *code);
 
 #endif //BOM_VM_H

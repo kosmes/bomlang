@@ -5,10 +5,10 @@
 #include "smem.h"
 
 static struct meta *getMeta(void *ptr) {
-    return ptr - sizeof (struct meta);
+    return (struct meta *) ((char *) ptr - sizeof (struct meta));
 }
 
-void *new(size_t size, void (*dtor)(void *)) {
+void *_create(size_t size, void (*dtor)(void *)) {
     struct meta *meta = malloc(sizeof (struct meta) + size);
     *meta = (struct meta) {
             .dtor = dtor,
@@ -17,11 +17,15 @@ void *new(size_t size, void (*dtor)(void *)) {
     return meta->ptr;
 }
 
-void delete(void *ptr) {
+void _delete(void *ptr) {
     if (ptr == NULL)
         return;
     struct meta *meta = getMeta(ptr);
     assert(ptr == meta->ptr);
     meta->dtor(ptr);
     free(meta);
+}
+
+void GeneralDtor(void *ptr) {
+
 }

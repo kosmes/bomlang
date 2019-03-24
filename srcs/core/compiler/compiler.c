@@ -23,17 +23,15 @@ static TYPE_ID checkCasting(Script *target_script, TYPE_ID origin_type,
 void CompilerDestroy(void *ptr) {
     Compiler *compiler = (Compiler *) ptr;
 
-    delete(compiler->scopeTable);
-    delete(compiler->rootScript);
+    _delete(compiler->scopeTable);
+    _delete(compiler->rootScript);
 }
 
 Compiler *CompilerCreate() {
-    Compiler *compiler = new(sizeof(Compiler), CompilerDestroy);
+    Compiler *compiler = create (Compiler, CompilerDestroy);
 
     compiler->rootScript = ScriptCreate();
-
-    compiler->scopeTable = TableCreate();
-
+    compiler->scopeTable = SymbolTableCreate(NULL);
     compiler->offset = 0;
 
     return compiler;
@@ -131,14 +129,12 @@ static CODE_BUFFER visitAssignOp(Node *node) {
         return NULL;
     }
 
-    TablePair *pair = TableGetData(this->scopeTable, lhs->token.str);
+    Symbol *symbol = SymbolTableLookUp(this->scopeTable, lhs->token.str);
 
-    if (pair == NULL) {
+    if (symbol == NULL) {
         Error(ERR_UNDEF_VAR);
         return NULL;
     }
-
-    size_t slot = *((size_t *) pair->data);
 
     CODE_BUFFER rhs_codes = visit(rhs);
 
@@ -147,7 +143,7 @@ static CODE_BUFFER visitAssignOp(Node *node) {
     buf_push(codes, OP_STORE);
 
     Converter cvt;
-    cvt.as_size = slot;
+    cvt.as_size = symbol->slot;
 
     for (int i = 0; i < 8; i++) {
         buf_push(codes, cvt.as_bytes[i]);
@@ -165,17 +161,16 @@ static CODE_BUFFER visitAssignOp(Node *node) {
 static CODE_BUFFER visitVar(Node *node) {
     VISIT_PREPARE;
 
-    TablePair *pair = TableGetData(this->scopeTable,
-                                   node->token.str);
+    Symbol *symbol = SymbolTableLookUp(this->scopeTable, node->token.str);
 
-    if (pair == NULL) {
+    if (symbol == NULL) {
         Error(ERR_UNDEF_VAR);
         return NULL;
     }
 
     buf_push(codes, OP_LOAD);
     Converter cvt;
-    cvt.as_size = *((size_t *) pair->data);
+    cvt.as_size = symbol->slot;
     for (int i = 0; i < 8; i++) {
         buf_push(codes, cvt.as_bytes[i]);
     }
@@ -196,22 +191,18 @@ static CODE_BUFFER visitVarDecl(Node *node) {
         return NULL;
     }
 
-    TablePair *pair = TableGetData(this->scopeTable, var_node->token.str);
+    Symbol *symbol = SymbolTableLookUp(this->scopeTable, var_node->token.str);
 
-    if (pair != NULL) {
+    if (symbol != NULL) {
         Error(ERR_DUPLE_VAR);
         return NULL;
     } else {
-        size_t *slot_ptr = malloc(sizeof(size_t));
-        *(slot_ptr) = this->offset++;
-        if ((pair = TableSetData(this->scopeTable,
-                                 var_node->token.str, slot_ptr)) == NULL) {
-            Error(ERR_ERROR);
-            return NULL;
-        }
+        symbol = SymbolCreate(SYMBOL_TYPE_VAR, var_node->token.str, NULL);
+        SymbolTableDefine(this->scopeTable, symbol);
+        symbol->slot = this->offset++;
     }
 
-    size_t slot = *((size_t *) pair->data);
+    size_t slot = symbol->slot;
 
     CODE_BUFFER init_codes = visit(init_node);
 
