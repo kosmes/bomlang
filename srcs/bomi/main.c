@@ -20,21 +20,18 @@ void add_history(u16char* unused) {}
 int main(void) {
     setlocale(LC_ALL, "");
 
-    wprintf(L"봄 인터프리터 0.0.2 베타 버전\n");
+    wprintf(L"봄 인터프리터 0.0.1 베타 버전\n");
     wprintf(L"종료하려면 Ctrl+C를 누르거나 '종료'를 입력하세요.\n");
 
     Machine *vm = MachineCreate();
 
-    while (true) {
+    //while (true) {
         ErrorResetCount();
         
-        u16char *input = readline(L"bom> ");
-        if(wcscmp(input, L"종료") == 0) {
-            break;
-        }
+        u16char *input = L"ㄱ = 10 선언;"; // readline(L"bom> ");
 
         MachineRunCode(vm, input);
-    }
+    //}
 
     MachineDestroy(vm);
 
