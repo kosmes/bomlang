@@ -107,7 +107,9 @@ void MachineRunCode(Machine *vm, const u16char *code) {
 #endif
 
     MachineSetScript(vm, vm->compiler->rootScript);
+
     _delete(vm->compiler->rootScript);
+    vm->compiler->rootScript = NULL;
 
     MachineRun(vm);
 }
