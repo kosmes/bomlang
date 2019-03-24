@@ -23,12 +23,12 @@ static TYPE_ID checkCasting(Script *target_script, TYPE_ID origin_type,
 void CompilerDestroy(void *ptr) {
     Compiler *compiler = (Compiler *) ptr;
 
-    delete(compiler->scopeTable);
-    delete(compiler->rootScript);
+    _delete(compiler->scopeTable);
+    _delete(compiler->rootScript);
 }
 
 Compiler *CompilerCreate() {
-    Compiler *compiler = new (Compiler, CompilerDestroy);
+    Compiler *compiler = create (Compiler, CompilerDestroy);
 
     compiler->rootScript = ScriptCreate();
     compiler->scopeTable = SymbolTableCreate(NULL);

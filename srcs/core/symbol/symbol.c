@@ -10,7 +10,7 @@ void SymbolDestroy(void *ptr) {
 }
 
 Symbol *SymbolCreate(unsigned char type, const u16char *name, Symbol *base) {
-    Symbol *symbol = new (Symbol, SymbolDestroy);
+    Symbol *symbol = create (Symbol, SymbolDestroy);
 
     size_t name_size = sizeof(u16char) * (wcslen(name) + 1);
 

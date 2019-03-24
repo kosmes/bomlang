@@ -58,20 +58,20 @@ int main(void) {
             continue;
         }
 
-        delete(root_node);
+        _delete(root_node);
 
 #if DEBUG_MODE
-        ScriptPrint(compiler.rootScript);
+        ScriptPrint(compiler->rootScript);
 #endif
 
         MachineSetScript(vm, compiler->rootScript);
-        delete(compiler->rootScript);
+        _delete(compiler->rootScript);
 
         MachineRun(vm);
     }
 
-    delete(compiler);
-    delete(vm);
+    _delete(compiler);
+    _delete(vm);
 
     return 0;
 }

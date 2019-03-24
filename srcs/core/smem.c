@@ -8,7 +8,7 @@ static struct meta *getMeta(void *ptr) {
     return (struct meta *) ((char *) ptr - sizeof (struct meta));
 }
 
-void *_new(size_t size, void (*dtor)(void *)) {
+void *_create(size_t size, void (*dtor)(void *)) {
     struct meta *meta = malloc(sizeof (struct meta) + size);
     *meta = (struct meta) {
             .dtor = dtor,
@@ -17,7 +17,7 @@ void *_new(size_t size, void (*dtor)(void *)) {
     return meta->ptr;
 }
 
-void delete(void *ptr) {
+void _delete(void *ptr) {
     if (ptr == NULL)
         return;
     struct meta *meta = getMeta(ptr);

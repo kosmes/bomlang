@@ -12,11 +12,11 @@ struct meta {
     void *ptr;
 };
 
-#define new(t, d) ((t *) _new(sizeof(t), d));
+#define create(t, d) ((t *) _create(sizeof(t), d));
 
-void *_new(size_t size, void (*dtor)(void *));
+void *_create(size_t size, void (*dtor)(void *));
 
-void delete(void *ptr);
+void _delete(void *ptr);
 
 void GeneralDtor(void *ptr);
 

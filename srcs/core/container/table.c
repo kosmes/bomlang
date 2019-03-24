@@ -23,8 +23,8 @@ void TableDestroy(void *ptr) {
     for (int i = 0; i < table->cap; i++) {
         TablePair *pair = table->pairs[i];
         while (pair != NULL) {
-            delete(pair->key);
-            delete(pair->data);
+            _delete(pair->key);
+            _delete(pair->data);
 
             TablePair *temp = pair;
             pair = pair->next;
@@ -39,7 +39,7 @@ void TableDestroy(void *ptr) {
 }
 
 Table *TableCreate() {
-    Table *table = new (Table, TableDestroy);
+    Table *table = create (Table, TableDestroy);
 
     table->cap = 32;
     table->len = 0;

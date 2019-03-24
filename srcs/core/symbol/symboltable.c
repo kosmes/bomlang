@@ -7,11 +7,11 @@
 void SymbolTableDestroy(void *ptr) {
     SymbolTable *table = (SymbolTable *) ptr;
 
-    delete(table->symbols);
+    _delete(table->symbols);
 }
 
 SymbolTable *SymbolTableCreate(SymbolTable *parent) {
-    SymbolTable *table = new (SymbolTable, SymbolTableDestroy);
+    SymbolTable *table = create (SymbolTable, SymbolTableDestroy);
 
     table->symbols = TableCreate();
     table->parent = parent;
