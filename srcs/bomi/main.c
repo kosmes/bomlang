@@ -1,10 +1,5 @@
 ﻿#include <locale.h>
 
-#include "compiler/parser.h"
-#include "compiler/syntax.h"
-#include "container/buf.h"
-#include "compiler/compiler.h"
-#include "runtime.h"
 #include "vm.h"
 #include "error.h"
 
@@ -28,7 +23,6 @@ int main(void) {
     wprintf(L"봄 인터프리터 0.0.2 베타 버전\n");
     wprintf(L"종료하려면 Ctrl+C를 누르거나 '종료'를 입력하세요.\n");
 
-    Compiler *compiler = CompilerCreate();
     Machine *vm = MachineCreate();
 
     while (true) {
@@ -39,39 +33,10 @@ int main(void) {
             break;
         }
 
-        Token *tokens = SyntaxGetTokens(input);
-        if (tokens == NULL) {
-            continue;
-        }
-
-        Node *root_node = ParserDoParse(tokens);
-
-        if (root_node == NULL) {
-            continue;
-        }
-
-#if DEBUG_MODE
-        NodePrint(root_node, 0);
-#endif
-
-        if (!CompilerTryCompile(compiler, root_node)) {
-            continue;
-        }
-
-        _delete(root_node);
-
-#if DEBUG_MODE
-        ScriptPrint(compiler->rootScript);
-#endif
-
-        MachineSetScript(vm, compiler->rootScript);
-        _delete(compiler->rootScript);
-
-        MachineRun(vm);
+        MachineRunCode(vm, input);
     }
 
-    _delete(compiler);
-    _delete(vm);
+    MachineDestroy(vm);
 
     return 0;
 }

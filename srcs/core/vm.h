@@ -7,6 +7,7 @@
 
 #include "common.h"
 #include "runtime.h"
+
 #include "compiler/script.h"
 #include "compiler/compiler.h"
 
@@ -75,5 +76,7 @@ DLL_EXPORT void MachineSetScript(Machine *vm, Script *script);
  * @brief   가상 머신에서 스크립트를 실행한다
  */
 DLL_EXPORT void MachineRun(Machine *vm);
+
+DLL_EXPORT void MachineRunCode(Machine *vm, const u16char *code);
 
 #endif //BOM_VM_H

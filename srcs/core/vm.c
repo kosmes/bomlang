@@ -3,8 +3,11 @@
 //
 
 #include "vm.h"
-#include "container/buf.h"
 #include "error.h"
+
+#include "compiler/parser.h"
+#include "compiler/syntax.h"
+#include "container/buf.h"
 
 #define NEXT_CODE(vm) ((vm)->text[(vm)->reg[REG_PROGRAM_CODE]++])
 #define THROW_ERROR(vm, errcode) (ErrorLine(errcode, 0), \
@@ -75,6 +78,38 @@ void MachineSetScript(Machine *vm, Script *script) {
     for (int i = 0; i < buf_len(script->text); i++) {
         buf_push(vm->text, script->text[i]);
     }
+}
+
+void MachineRunCode(Machine *vm, const u16char *code) {
+    Token *tokens = SyntaxGetTokens(code);
+    if (tokens == NULL) {
+        return;
+    }
+
+    Node *root_node = ParserDoParse(tokens);
+
+    if (root_node == NULL) {
+        return;
+    }
+
+#if DEBUG_MODE
+    NodePrint(root_node, 0);
+#endif
+
+    if (!CompilerTryCompile(vm->compiler, root_node)) {
+        return;
+    }
+
+    _delete(root_node);
+
+#if DEBUG_MODE
+    ScriptPrint(vm->compiler->rootScript);
+#endif
+
+    MachineSetScript(vm, vm->compiler->rootScript);
+    _delete(vm->compiler->rootScript);
+
+    MachineRun(vm);
 }
 
 static void push_int(Machine *vm, int data) {
