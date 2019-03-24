@@ -23,8 +23,8 @@ void TableDestroy(void *ptr) {
     for (int i = 0; i < table->cap; i++) {
         TablePair *pair = table->pairs[i];
         while (pair != NULL) {
-            free(pair->key);
-            free(pair->data);
+            delete(pair->key);
+            delete(pair->data);
 
             TablePair *temp = pair;
             pair = pair->next;
@@ -58,7 +58,15 @@ TablePair *TableGetData(Table *table, const u16char *key) {
     }
 
     size_t addr = hash_string(key) % table->cap;
-    return table->pairs[addr];
+    TablePair *pair = table->pairs[addr];
+    while (pair != NULL) {
+        if (wcscmp(pair->key, key) == 0) {
+            break;
+        }
+
+        pair = pair->next;
+    }
+    return pair;
 }
 
 TablePair *TableSetData(Table *table, const u16char *key, void *data) {
