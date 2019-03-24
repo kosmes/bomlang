@@ -23,13 +23,14 @@ void TableDestroy(void *ptr) {
     for (int i = 0; i < table->cap; i++) {
         TablePair *pair = table->pairs[i];
         while (pair != NULL) {
-            _delete(pair->key);
-            _delete(pair->data);
-
             TablePair *temp = pair;
             pair = pair->next;
 
-            free(temp);
+            _delete(temp->key);
+            _delete(temp->data);
+
+
+            _delete(temp);
         }
     }
 
@@ -79,9 +80,9 @@ TablePair *TableSetData(Table *table, const u16char *key, void *data) {
     TablePair *pair = table->pairs[addr];
 
     if (pair == NULL) {
-        pair = malloc(sizeof(pair));
+        pair = _create (sizeof(TablePair), GeneralDtor);
 
-        pair->key = malloc(sizeof(u16char) * (wcslen(key) + 1));
+        pair->key = _create (sizeof(u16char) * (wcslen(key) + 1), GeneralDtor);
         wcscpy(pair->key, key);
         pair->data = data;
         pair->next = NULL;
@@ -97,9 +98,9 @@ TablePair *TableSetData(Table *table, const u16char *key, void *data) {
             if (pair->next != NULL) {
                 pair = pair->next;
             } else {
-                TablePair *new_pair = malloc(sizeof(pair));
+                TablePair *new_pair = _create (sizeof(TablePair), GeneralDtor);
 
-                new_pair->key = malloc(sizeof(u16char) * (wcslen(key) + 1));
+                new_pair->key = _create (sizeof(u16char) * (wcslen(key) + 1), GeneralDtor);
                 wcscpy(new_pair->key, key);
                 new_pair->data = data;
                 new_pair->next = NULL;
